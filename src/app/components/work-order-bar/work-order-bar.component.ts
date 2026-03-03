@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { WorkOrderDocument, STATUS_COLORS } from '../../models/work-order.model';
+import { WorkOrderDocument, STATUS_BADGE_COLORS, BAR_COLORS, STATUS_OPTIONS } from '../../models/work-order.model';
 
 @Component({
   selector: 'app-work-order-bar',
@@ -17,22 +17,33 @@ export class WorkOrderBarComponent {
   @Output() editOrder = new EventEmitter<WorkOrderDocument>();
   @Output() deleteOrder = new EventEmitter<string>();
 
+  isHovered = false;
   menuOpen = false;
 
   constructor(private elRef: ElementRef) {}
 
-  get statusColor(): string {
-    return STATUS_COLORS[this.order.data.status] || '#4A90D9';
+  get barBg(): string {
+    return BAR_COLORS[this.order.data.status]?.bg || BAR_COLORS['open'].bg;
+  }
+
+  get barBorder(): string {
+    return BAR_COLORS[this.order.data.status]?.border || BAR_COLORS['open'].border;
+  }
+
+  get badgeBg(): string {
+    return STATUS_BADGE_COLORS[this.order.data.status]?.bg || '#E8EAFF';
+  }
+
+  get badgeText(): string {
+    return STATUS_BADGE_COLORS[this.order.data.status]?.text || '#5B5FC7';
   }
 
   get statusLabel(): string {
-    switch (this.order.data.status) {
-      case 'open': return 'Open';
-      case 'in-progress': return 'In Progress';
-      case 'complete': return 'Complete';
-      case 'blocked': return 'Blocked';
-      default: return '';
-    }
+    return STATUS_OPTIONS.find(s => s.value === this.order.data.status)?.label || 'Open';
+  }
+
+  onBarClick(event: MouseEvent): void {
+    event.stopPropagation();
   }
 
   toggleMenu(event: MouseEvent): void {

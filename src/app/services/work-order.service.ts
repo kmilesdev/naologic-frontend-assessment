@@ -19,10 +19,6 @@ export class WorkOrderService {
     return this.workOrders$.asObservable();
   }
 
-  getWorkOrdersForCenter(workCenterId: string): WorkOrderDocument[] {
-    return this.workOrders$.value.filter(wo => wo.data.workCenterId === workCenterId);
-  }
-
   checkOverlap(
     workCenterId: string,
     startDate: string,

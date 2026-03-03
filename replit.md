@@ -1,14 +1,15 @@
 # Work Order Schedule Timeline
 
 ## Overview
-An Angular 17+ interactive timeline component for manufacturing ERP work order scheduling. Visualize, create, and edit work orders across multiple work centers with Day/Week/Month zoom levels.
+An Angular 17+ interactive timeline application for Naologic's manufacturing ERP tech test. Implements a "Work Orders" schedule/timeline screen with fixed left Work Center column and horizontally scrollable timeline area. UI matches 8 provided design screenshots.
 
 ## Architecture
 - **Framework**: Angular 17+ with standalone components
 - **Styling**: SCSS + Circular Std font (from Naologic CDN)
 - **Forms**: Reactive Forms with FormGroup/FormControl/Validators
-- **Dropdowns**: ng-select for timescale and status dropdowns
-- **Datepickers**: @ng-bootstrap/ng-bootstrap ngb-datepicker
+- **Status Dropdown**: ng-select for status field in drawer panel
+- **Datepickers**: @ng-bootstrap/ng-bootstrap ngb-datepicker for date fields
+- **Timescale Dropdown**: Custom dropdown component (not ng-select) for pixel-perfect match
 - **Date math**: date-fns for all date calculations
 - **Builder**: @angular-devkit/build-angular:browser (webpack-based for Replit host compatibility)
 
@@ -16,25 +17,43 @@ An Angular 17+ interactive timeline component for manufacturing ERP work order s
 ```
 src/app/
   models/           - TypeScript interfaces (WorkCenterDocument, WorkOrderDocument, TimelineColumn)
-  data/             - Hardcoded sample data (6 work centers, 10 work orders)
+  data/             - Hardcoded sample data (5 work centers, 5 work orders)
   services/
     work-order.service.ts  - CRUD operations, overlap validation
     timeline.service.ts    - Date-to-pixel math, column generation, zoom level handling
   components/
-    timeline/              - Main timeline grid (toolbar, left panel, scrollable grid)
-    work-order-bar/        - Individual work order bar with three-dot menu
-    work-order-panel/      - Slide-out create/edit panel with reactive form
+    timeline/              - Main page layout (NAOLOGIC branding, title, timescale control, grid)
+    work-order-bar/        - Work order bar with light pastel bg, status badge, hover 3-dot menu
+    work-order-panel/      - Right-side drawer panel with create/edit form
 ```
 
 ## Key Features
-- Day/Week/Month zoom levels via timescale dropdown
-- Fixed left column with work center names, horizontally scrollable timeline grid
-- Today indicator line
-- Click empty timeline area to create work order (end = start + 7 days)
-- Three-dot menu on each bar with Edit/Delete options
-- Strict overlap validation per work center (blocks save with error message)
-- Calendar-aware positioning for week/month views
-- Status colors: Open (blue), In Progress (purple), Complete (green), Blocked (orange)
+- Hour/Day/Week/Month zoom levels via custom timescale dropdown (Month default)
+- NAOLOGIC branding in top-left, "Work Orders" title
+- Fixed left column with 5 work center names, horizontally scrollable timeline grid
+- "Current month" yellow pill indicator in timeline header
+- "Click to add dates" tooltip on hover over empty timeline areas
+- Light pastel work order bars with colored status pill badges
+- Three-dot menu (···) appears on bar hover with Edit/Delete dropdown
+- Right-side drawer panel (no backdrop) with Cancel/Create buttons at top-right
+- Form field order: Name → Status → End date → Start date
+- Date format: MM.DD.YYYY
+- Status options: Open, In progress, Complete, Blocked
+- Strict overlap validation per work center
+
+## Work Centers
+1. Genesis Hardware
+2. Rodriques Electrics
+3. Konsulting Inc
+4. McMarrow Distribution
+5. Spartan Manufacturing
+
+## Sample Work Orders
+- Centrix Ltd (Genesis Hardware) - Complete
+- Rodriques Electrics (Rodriques Electrics) - In progress
+- Konsulting Inc (Konsulting Inc) - In progress
+- Compleks Systems (Konsulting Inc) - In progress
+- McMarrow Distribution (McMarrow Distribution) - Blocked
 
 ## Running
 ```bash

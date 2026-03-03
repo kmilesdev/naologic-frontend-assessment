@@ -1,111 +1,116 @@
-<div class="timeline-wrapper">
-  <div class="timeline-toolbar">
-    <h1 class="toolbar-title">Work Orders</h1>
-    <div class="toolbar-controls">
-      <span class="timescale-label">Timescale:</span>
-      <ng-select
-        class="zoom-select"
-        [(ngModel)]="zoomLevel"
-        (ngModelChange)="onZoomChange()"
-        [items]="zoomOptions"
-        bindLabel="label"
-        bindValue="value"
-        [clearable]="false"
-        [searchable]="false"
-      ></ng-select>
-    </div>
+<div class="page-wrapper" (click)="onDocumentClick($event)">
+  <div class="page-header">
+    <div class="brand">NAO<span class="brand-accent">LOGIC</span></div>
   </div>
 
-  <div class="timeline-body">
-    <div class="left-panel">
-      <div class="left-header">
-        @if (zoomLevel === 'day') {
-          <div class="left-header-top"></div>
-        }
-        <div class="left-header-bottom">Work Center</div>
-      </div>
+  <div class="page-content">
+    <h1 class="page-title">Work Orders</h1>
 
-      <div class="left-rows" #leftRows>
-        @for (center of workCenters; track trackByCenter($index, center)) {
-          <div class="left-row">
-            {{ center.data.name }}
-          </div>
-        }
-      </div>
+    <div class="timescale-control">
+      <span class="timescale-label">Timescale</span>
+      <button class="timescale-trigger" (click)="toggleZoomDropdown()">
+        {{ selectedZoomLabel }}
+        <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+          <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      @if (zoomDropdownOpen) {
+        <div class="timescale-dropdown">
+          @for (opt of zoomOptions; track opt.value) {
+            <button
+              class="timescale-option"
+              [class.active]="opt.value === zoomLevel"
+              (click)="selectZoom(opt.value)"
+            >
+              {{ opt.label }}
+            </button>
+          }
+        </div>
+      }
     </div>
 
-    <div class="right-panel" #timelineGrid (scroll)="onGridScroll()">
-      <div class="grid-container" [style.width.px]="totalWidth">
-        @if (zoomLevel === 'day' && monthHeaders.length) {
-          <div class="month-header-row">
-            @for (mh of monthHeaders; track mh.label) {
-              <div
-                class="month-header-cell"
-                [style.width.px]="mh.span * columnWidth"
-              >
-                {{ mh.label }}
-              </div>
-            }
-          </div>
-        }
-
-        <div class="column-header-row">
-          @for (col of columns; track trackByColumn($index, col)) {
-            <div
-              class="column-header"
-              [style.width.px]="columnWidth"
-              [class.is-today]="col.isToday"
-            >
-              <span class="col-label">{{ col.label }}</span>
-              @if (col.subLabel) {
-                <span class="col-sub-label">{{ col.subLabel }}</span>
-              }
+    <div class="timeline-container">
+      <div class="left-panel">
+        <div class="left-header">
+          <span>Work Center</span>
+        </div>
+        <div class="left-rows" #leftRows>
+          @for (center of workCenters; track trackByCenter($index, center)) {
+            <div class="left-row" [class.hovered]="hoveredRowId === center.docId">
+              {{ center.data.name }}
             </div>
           }
         </div>
+      </div>
 
-        <div class="grid-rows">
-          <div
-            class="today-line"
-            [style.left.px]="todayOffset"
-          ></div>
+      <div class="right-panel" #timelineGrid (scroll)="onGridScroll()">
+        <div class="grid-container" [style.width.px]="totalWidth">
+          <div class="column-header-row">
+            @for (col of columns; track trackByColumn($index, col)) {
+              <div
+                class="column-header"
+                [style.width.px]="columnWidth"
+              >
+                <span class="col-label">{{ col.label }}</span>
+                @if (col.isCurrent) {
+                  <span class="current-month-pill">Current month</span>
+                }
+              </div>
+            }
+          </div>
 
-          @for (center of workCenters; track trackByCenter($index, center)) {
-            <div
-              class="grid-row"
-              (click)="onTimelineClick($event, center.docId)"
-            >
-              @for (col of columns; track trackByColumn($index, col)) {
-                <div
-                  class="grid-cell"
-                  [style.width.px]="columnWidth"
-                  [class.is-today]="col.isToday"
-                ></div>
-              }
+          <div class="grid-rows">
+            @for (center of workCenters; track trackByCenter($index, center)) {
+              <div
+                class="grid-row"
+                [class.hovered]="hoveredRowId === center.docId"
+                (click)="onTimelineClick($event, center.docId)"
+                (mousemove)="onRowMouseMove($event, center.docId)"
+                (mouseleave)="onRowMouseLeave()"
+              >
+                @for (col of columns; track trackByColumn($index, col)) {
+                  <div
+                    class="grid-cell"
+                    [style.width.px]="columnWidth"
+                  ></div>
+                }
 
-              @for (order of getOrdersForCenter(center.docId); track trackByOrder($index, order)) {
-                <app-work-order-bar
-                  [order]="order"
-                  [leftPx]="getBarLeft(order)"
-                  [widthPx]="getBarWidth(order)"
-                  (editOrder)="onEditOrder($event)"
-                  (deleteOrder)="onDeleteOrder($event)"
-                ></app-work-order-bar>
-              }
-            </div>
-          }
+                @for (order of getOrdersForCenter(center.docId); track trackByOrder($index, order)) {
+                  <app-work-order-bar
+                    [order]="order"
+                    [leftPx]="getBarLeft(order)"
+                    [widthPx]="getBarWidth(order)"
+                    (editOrder)="onEditOrder($event)"
+                    (deleteOrder)="onDeleteOrder($event)"
+                  ></app-work-order-bar>
+                }
+              </div>
+            }
+
+            @if (tooltipVisible) {
+              <div
+                class="click-tooltip"
+                [style.left.px]="tooltipX - 60"
+                [style.top.px]="tooltipY - 36"
+              >
+                Click to add dates
+              </div>
+            }
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<app-work-order-panel
-  [isOpen]="panelOpen"
-  [mode]="panelMode"
-  [workCenterId]="panelWorkCenterId"
-  [initialStartDate]="panelStartDate"
-  [editOrder]="panelEditOrder"
-  (closed)="onPanelClosed()"
-  (saved)="onPanelSaved()"
-></app-work-order-panel>
+@if (panelOpen) {
+  <app-work-order-panel
+    [isOpen]="panelOpen"
+    [mode]="panelMode"
+    [workCenterId]="panelWorkCenterId"
+    [initialStartDate]="panelStartDate"
+    [editOrder]="panelEditOrder"
+    (closed)="onPanelClosed()"
+    (saved)="onPanelSaved()"
+  ></app-work-order-panel>
+}

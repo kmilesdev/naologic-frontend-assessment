@@ -2,35 +2,31 @@
   class="work-order-bar"
   [style.left.px]="leftPx"
   [style.width.px]="widthPx"
-  [style.--bar-color]="statusColor"
+  [style.background]="barBg"
+  [style.border-color]="barBorder"
+  (click)="onBarClick($event)"
+  (mouseenter)="isHovered = true"
+  (mouseleave)="isHovered = false; menuOpen = false"
 >
   <span class="bar-name">{{ order.data.name }}</span>
-  <span class="bar-status" [style.background]="statusColor">{{ statusLabel }}</span>
+  <span
+    class="bar-status"
+    [style.background]="badgeBg"
+    [style.color]="badgeText"
+  >{{ statusLabel }}</span>
 
-  <div class="bar-actions">
-    <button class="three-dot-btn" (click)="toggleMenu($event)" type="button">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <circle cx="8" cy="3" r="1.5" fill="#fff"/>
-        <circle cx="8" cy="8" r="1.5" fill="#fff"/>
-        <circle cx="8" cy="13" r="1.5" fill="#fff"/>
-      </svg>
-    </button>
+  @if (isHovered) {
+    <div class="bar-actions">
+      <button class="three-dot-btn" (click)="toggleMenu($event)" type="button">
+        ···
+      </button>
 
-    @if (menuOpen) {
-      <div class="dropdown-menu">
-        <button class="dropdown-item" (click)="onEdit($event)">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M10.5 1.5l2 2-8 8H2.5v-2l8-8z" stroke="#374151" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          Edit
-        </button>
-        <button class="dropdown-item delete" (click)="onDelete($event)">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M2 4h10M5 4V2.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5V4M11 4v7.5a1 1 0 01-1 1H4a1 1 0 01-1-1V4" stroke="#DC2626" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          Delete
-        </button>
-      </div>
-    }
-  </div>
+      @if (menuOpen) {
+        <div class="dropdown-menu">
+          <button class="dropdown-item" (click)="onEdit($event)">Edit</button>
+          <button class="dropdown-item" (click)="onDelete($event)">Delete</button>
+        </div>
+      }
+    </div>
+  }
 </div>

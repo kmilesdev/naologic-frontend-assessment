@@ -3,7 +3,6 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NgSelectModule } from '@ng-select/ng-select';
 import { Subject, takeUntil, combineLatest } from 'rxjs';
 import { format } from 'date-fns';
 
@@ -19,7 +18,7 @@ import { WorkOrderPanelComponent } from '../work-order-panel/work-order-panel.co
 @Component({
   selector: 'app-timeline',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgSelectModule, WorkOrderBarComponent, WorkOrderPanelComponent],
+  imports: [CommonModule, FormsModule, WorkOrderBarComponent, WorkOrderPanelComponent],
   templateUrl: './timeline.component.html',
   styleUrls: ['./timeline.component.scss'],
 })
@@ -30,26 +29,34 @@ export class TimelineComponent implements OnInit, OnDestroy, AfterViewInit {
   workCenters: WorkCenterDocument[] = [];
   workOrders: WorkOrderDocument[] = [];
 
-  zoomLevel: ZoomLevel = 'day';
+  zoomLevel: ZoomLevel = 'month';
   zoomOptions: { value: ZoomLevel; label: string }[] = [
+    { value: 'hour', label: 'Hour' },
     { value: 'day', label: 'Day' },
     { value: 'week', label: 'Week' },
     { value: 'month', label: 'Month' },
   ];
+  zoomDropdownOpen = false;
 
   columns: TimelineColumn[] = [];
-  monthHeaders: { label: string; span: number }[] = [];
   rangeStart!: Date;
   rangeEnd!: Date;
   totalWidth = 0;
-  todayOffset = 0;
-  columnWidth = 60;
+  columnWidth = 140;
+  currentMonthIndex = -1;
+  referenceDate = new Date(2024, 8, 15);
 
   panelOpen = false;
   panelMode: 'create' | 'edit' = 'create';
   panelWorkCenterId = '';
   panelStartDate = '';
   panelEditOrder: WorkOrderDocument | null = null;
+
+  tooltipVisible = false;
+  tooltipX = 0;
+  tooltipY = 0;
+
+  hoveredRowId = '';
 
   private destroy$ = new Subject<void>();
 
@@ -74,7 +81,7 @@ export class TimelineComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.scrollToToday();
+    this.scrollToCurrentMonth();
   }
 
   ngOnDestroy(): void {
@@ -82,27 +89,47 @@ export class TimelineComponent implements OnInit, OnDestroy, AfterViewInit {
     this.destroy$.complete();
   }
 
-  onZoomChange(): void {
+  get selectedZoomLabel(): string {
+    return this.zoomOptions.find(o => o.value === this.zoomLevel)?.label || 'Month';
+  }
+
+  toggleZoomDropdown(): void {
+    this.zoomDropdownOpen = !this.zoomDropdownOpen;
+  }
+
+  selectZoom(zoom: ZoomLevel): void {
+    this.zoomLevel = zoom;
+    this.zoomDropdownOpen = false;
     this.buildTimeline();
-    setTimeout(() => this.scrollToToday(), 0);
+    setTimeout(() => this.scrollToCurrentMonth(), 0);
+  }
+
+  closeZoomDropdown(): void {
+    this.zoomDropdownOpen = false;
   }
 
   private buildTimeline(): void {
-    const range = this.timelineService.getDateRange(this.zoomLevel, new Date());
+    let range: { start: Date; end: Date };
+    if (this.zoomLevel === 'month') {
+      range = this.timelineService.getFixedDateRange();
+    } else {
+      range = this.timelineService.getDateRange(this.zoomLevel, this.referenceDate);
+    }
     this.rangeStart = range.start;
     this.rangeEnd = range.end;
     this.columnWidth = this.timelineService.getColumnWidth(this.zoomLevel);
-    this.columns = this.timelineService.generateColumns(this.zoomLevel, this.rangeStart, this.rangeEnd);
+    this.columns = this.timelineService.generateColumns(this.zoomLevel, this.rangeStart, this.rangeEnd, this.referenceDate);
     this.totalWidth = this.columns.length * this.columnWidth;
-    this.todayOffset = this.timelineService.getTodayOffset(this.rangeStart, this.zoomLevel, this.columns);
-    this.monthHeaders = this.timelineService.getMonthHeaders(this.zoomLevel, this.columns);
+    this.currentMonthIndex = this.timelineService.getCurrentColumnIndex(this.columns);
   }
 
-  private scrollToToday(): void {
+  private scrollToCurrentMonth(): void {
     if (!this.timelineGrid) return;
     const container = this.timelineGrid.nativeElement;
-    const scrollLeft = this.todayOffset - container.clientWidth / 2;
-    container.scrollLeft = Math.max(0, scrollLeft);
+    if (this.currentMonthIndex >= 0) {
+      const scrollLeft = this.currentMonthIndex * this.columnWidth - container.clientWidth / 3;
+      container.scrollLeft = Math.max(0, scrollLeft);
+    }
   }
 
   getOrdersForCenter(centerId: string): WorkOrderDocument[] {
@@ -135,6 +162,26 @@ export class TimelineComponent implements OnInit, OnDestroy, AfterViewInit {
     this.panelStartDate = format(clickDate, 'yyyy-MM-dd');
     this.panelEditOrder = null;
     this.panelOpen = true;
+    this.tooltipVisible = false;
+  }
+
+  onRowMouseMove(event: MouseEvent, workCenterId: string): void {
+    const target = event.target as HTMLElement;
+    if (target.closest('app-work-order-bar') || target.closest('.work-order-bar')) {
+      this.tooltipVisible = false;
+      return;
+    }
+    this.hoveredRowId = workCenterId;
+    const gridEl = this.timelineGrid.nativeElement;
+    const rect = gridEl.getBoundingClientRect();
+    this.tooltipX = event.clientX - rect.left + gridEl.scrollLeft;
+    this.tooltipY = event.clientY - rect.top + gridEl.scrollTop;
+    this.tooltipVisible = true;
+  }
+
+  onRowMouseLeave(): void {
+    this.tooltipVisible = false;
+    this.hoveredRowId = '';
   }
 
   onEditOrder(order: WorkOrderDocument): void {
@@ -174,6 +221,13 @@ export class TimelineComponent implements OnInit, OnDestroy, AfterViewInit {
   onGridScroll(): void {
     if (this.leftRows && this.timelineGrid) {
       this.leftRows.nativeElement.scrollTop = this.timelineGrid.nativeElement.scrollTop;
+    }
+  }
+
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.timescale-control')) {
+      this.zoomDropdownOpen = false;
     }
   }
 }

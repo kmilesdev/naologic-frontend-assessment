@@ -2,8 +2,8 @@ import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { NgbDatepickerModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { WorkOrderDocument, WorkOrderStatus, STATUS_OPTIONS } from '../../models/work-order.model';
+import { NgbDatepickerModule, NgbDateStruct, NgbDateParserFormatter } from '@ng-bootstrap/ng-bootstrap';
+import { WorkOrderDocument, WorkOrderStatus, STATUS_OPTIONS, STATUS_BADGE_COLORS } from '../../models/work-order.model';
 import { WorkOrderService } from '../../services/work-order.service';
 import { format, parseISO, addDays } from 'date-fns';
 
@@ -26,12 +26,13 @@ export class WorkOrderPanelComponent implements OnChanges {
 
   statusOptions = STATUS_OPTIONS;
   overlapError = '';
+  statusBadgeColors = STATUS_BADGE_COLORS;
 
   form = new FormGroup({
     name: new FormControl('', [Validators.required]),
     status: new FormControl<WorkOrderStatus>('open', [Validators.required]),
-    startDate: new FormControl<NgbDateStruct | null>(null, [Validators.required]),
     endDate: new FormControl<NgbDateStruct | null>(null, [Validators.required]),
+    startDate: new FormControl<NgbDateStruct | null>(null, [Validators.required]),
   }, { validators: this.dateRangeValidator });
 
   constructor(private workOrderService: WorkOrderService) {}
@@ -70,6 +71,26 @@ export class WorkOrderPanelComponent implements OnChanges {
     const s = new Date(start.year, start.month - 1, start.day);
     const e = new Date(end.year, end.month - 1, end.day);
     return e > s ? null : { dateRange: true };
+  }
+
+  getStatusBadgeBg(status: WorkOrderStatus): string {
+    return STATUS_BADGE_COLORS[status]?.bg || '#E8EAFF';
+  }
+
+  getStatusBadgeText(status: WorkOrderStatus): string {
+    return STATUS_BADGE_COLORS[status]?.text || '#5B5FC7';
+  }
+
+  getSelectedStatusLabel(): string {
+    const val = this.form.get('status')?.value;
+    return STATUS_OPTIONS.find(s => s.value === val)?.label || 'Open';
+  }
+
+  formatNgbDate(d: NgbDateStruct | null): string {
+    if (!d) return '';
+    const month = String(d.month).padStart(2, '0');
+    const day = String(d.day).padStart(2, '0');
+    return `${month}.${day}.${d.year}`;
   }
 
   onSubmit(): void {
@@ -112,12 +133,6 @@ export class WorkOrderPanelComponent implements OnChanges {
     this.isOpen = false;
     this.overlapError = '';
     this.closed.emit();
-  }
-
-  onBackdropClick(event: MouseEvent): void {
-    if ((event.target as HTMLElement).classList.contains('panel-backdrop')) {
-      this.close();
-    }
   }
 
   private dateToNgb(d: Date): NgbDateStruct {

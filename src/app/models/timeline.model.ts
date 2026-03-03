@@ -1,4 +1,4 @@
-export type ZoomLevel = 'day' | 'week' | 'month';
+export type ZoomLevel = 'hour' | 'day' | 'week' | 'month';
 
 export interface TimelineConfig {
   zoomLevel: ZoomLevel;
@@ -12,4 +12,5 @@ export interface TimelineColumn {
   label: string;
   subLabel?: string;
   isToday: boolean;
+  isCurrent: boolean;
 }
