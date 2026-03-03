@@ -3,6 +3,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
 import { Subject, takeUntil, combineLatest } from 'rxjs';
 import { format } from 'date-fns';
 
@@ -18,7 +19,7 @@ import { WorkOrderPanelComponent } from '../work-order-panel/work-order-panel.co
 @Component({
   selector: 'app-timeline',
   standalone: true,
-  imports: [CommonModule, FormsModule, WorkOrderBarComponent, WorkOrderPanelComponent],
+  imports: [CommonModule, FormsModule, NgSelectModule, WorkOrderBarComponent, WorkOrderPanelComponent],
   templateUrl: './timeline.component.html',
   styleUrls: ['./timeline.component.scss'],
 })

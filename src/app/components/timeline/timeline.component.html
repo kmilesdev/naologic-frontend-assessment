@@ -3,15 +3,16 @@
     <h1 class="toolbar-title">Work Orders</h1>
     <div class="toolbar-controls">
       <span class="timescale-label">Timescale:</span>
-      <select
+      <ng-select
         class="zoom-select"
         [(ngModel)]="zoomLevel"
         (ngModelChange)="onZoomChange()"
-      >
-        @for (opt of zoomOptions; track opt.value) {
-          <option [value]="opt.value">{{ opt.label }}</option>
-        }
-      </select>
+        [items]="zoomOptions"
+        bindLabel="label"
+        bindValue="value"
+        [clearable]="false"
+        [searchable]="false"
+      ></ng-select>
     </div>
   </div>
 

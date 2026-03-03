@@ -7,7 +7,7 @@ An Angular 17+ interactive timeline component for manufacturing ERP work order s
 - **Framework**: Angular 17+ with standalone components
 - **Styling**: SCSS + Circular Std font (from Naologic CDN)
 - **Forms**: Reactive Forms with FormGroup/FormControl/Validators
-- **Dropdowns**: ng-select for status selection
+- **Dropdowns**: ng-select for timescale and status dropdowns
 - **Datepickers**: @ng-bootstrap/ng-bootstrap ngb-datepicker
 - **Date math**: date-fns for all date calculations
 - **Builder**: @angular-devkit/build-angular:browser (webpack-based for Replit host compatibility)
