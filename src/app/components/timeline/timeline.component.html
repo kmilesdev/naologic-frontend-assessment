@@ -1,0 +1,110 @@
+<div class="timeline-wrapper">
+  <div class="timeline-toolbar">
+    <h1 class="toolbar-title">Work Orders</h1>
+    <div class="toolbar-controls">
+      <span class="timescale-label">Timescale:</span>
+      <select
+        class="zoom-select"
+        [(ngModel)]="zoomLevel"
+        (ngModelChange)="onZoomChange()"
+      >
+        @for (opt of zoomOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <div class="timeline-body">
+    <div class="left-panel">
+      <div class="left-header">
+        @if (zoomLevel === 'day') {
+          <div class="left-header-top"></div>
+        }
+        <div class="left-header-bottom">Work Center</div>
+      </div>
+
+      <div class="left-rows" #leftRows>
+        @for (center of workCenters; track trackByCenter($index, center)) {
+          <div class="left-row">
+            {{ center.data.name }}
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="right-panel" #timelineGrid (scroll)="onGridScroll()">
+      <div class="grid-container" [style.width.px]="totalWidth">
+        @if (zoomLevel === 'day' && monthHeaders.length) {
+          <div class="month-header-row">
+            @for (mh of monthHeaders; track mh.label) {
+              <div
+                class="month-header-cell"
+                [style.width.px]="mh.span * columnWidth"
+              >
+                {{ mh.label }}
+              </div>
+            }
+          </div>
+        }
+
+        <div class="column-header-row">
+          @for (col of columns; track trackByColumn($index, col)) {
+            <div
+              class="column-header"
+              [style.width.px]="columnWidth"
+              [class.is-today]="col.isToday"
+            >
+              <span class="col-label">{{ col.label }}</span>
+              @if (col.subLabel) {
+                <span class="col-sub-label">{{ col.subLabel }}</span>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="grid-rows">
+          <div
+            class="today-line"
+            [style.left.px]="todayOffset"
+          ></div>
+
+          @for (center of workCenters; track trackByCenter($index, center)) {
+            <div
+              class="grid-row"
+              (click)="onTimelineClick($event, center.docId)"
+            >
+              @for (col of columns; track trackByColumn($index, col)) {
+                <div
+                  class="grid-cell"
+                  [style.width.px]="columnWidth"
+                  [class.is-today]="col.isToday"
+                ></div>
+              }
+
+              @for (order of getOrdersForCenter(center.docId); track trackByOrder($index, order)) {
+                <app-work-order-bar
+                  [order]="order"
+                  [leftPx]="getBarLeft(order)"
+                  [widthPx]="getBarWidth(order)"
+                  (editOrder)="onEditOrder($event)"
+                  (deleteOrder)="onDeleteOrder($event)"
+                ></app-work-order-bar>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-work-order-panel
+  [isOpen]="panelOpen"
+  [mode]="panelMode"
+  [workCenterId]="panelWorkCenterId"
+  [initialStartDate]="panelStartDate"
+  [editOrder]="panelEditOrder"
+  (closed)="onPanelClosed()"
+  (saved)="onPanelSaved()"
+></app-work-order-panel>

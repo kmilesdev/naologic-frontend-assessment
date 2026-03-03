@@ -1,0 +1,109 @@
+.work-order-bar {
+  position: absolute;
+  top: 8px;
+  height: 36px;
+  border-radius: 6px;
+  background: var(--bar-color, #4A90D9);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  cursor: default;
+  overflow: hidden;
+  z-index: 2;
+  transition: filter 0.15s;
+  min-width: 60px;
+
+  &:hover {
+    filter: brightness(1.08);
+  }
+}
+
+.bar-name {
+  font-family: "Circular-Std", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+}
+
+.bar-status {
+  font-family: "Circular-Std", sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+}
+
+.bar-actions {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.three-dot-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.15s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: #fff;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  min-width: 140px;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: "Circular-Std", sans-serif;
+  font-size: 13px;
+  color: #374151;
+  transition: background 0.1s;
+  text-align: left;
+
+  &:hover {
+    background: #F3F4F6;
+  }
+
+  &.delete {
+    color: #DC2626;
+
+    &:hover {
+      background: #FEF2F2;
+    }
+  }
+}

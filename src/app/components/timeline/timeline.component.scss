@@ -1,0 +1,235 @@
+.timeline-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #F9FAFB;
+  font-family: "Circular-Std", sans-serif;
+}
+
+.timeline-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: #fff;
+  border-bottom: 1px solid #E5E7EB;
+  flex-shrink: 0;
+}
+
+.toolbar-title {
+  font-size: 20px;
+  font-weight: 500;
+  color: #111827;
+  margin: 0;
+}
+
+.toolbar-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timescale-label {
+  font-size: 13px;
+  color: #6B7280;
+}
+
+.zoom-select {
+  font-family: "Circular-Std", sans-serif;
+  font-size: 13px;
+  padding: 6px 28px 6px 12px;
+  border: 1px solid #D1D5DB;
+  border-radius: 6px;
+  background: #fff;
+  color: #374151;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236B7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+
+  &:focus {
+    border-color: #4A90D9;
+  }
+}
+
+.timeline-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.left-panel {
+  width: 200px;
+  min-width: 200px;
+  background: #fff;
+  border-right: 1px solid #E5E7EB;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.left-header {
+  border-bottom: 1px solid #E5E7EB;
+  flex-shrink: 0;
+}
+
+.left-header-top {
+  height: 32px;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.left-header-bottom {
+  padding: 10px 16px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6B7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.left-rows {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.left-row {
+  height: 52px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  border-bottom: 1px solid #F3F4F6;
+  transition: background 0.1s;
+
+  &:hover {
+    background: #F9FAFB;
+  }
+}
+
+.right-panel {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+.grid-container {
+  min-height: 100%;
+  position: relative;
+}
+
+.month-header-row {
+  display: flex;
+  height: 32px;
+  border-bottom: 1px solid #E5E7EB;
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.month-header-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: #374151;
+  border-right: 1px solid #E5E7EB;
+  box-sizing: border-box;
+}
+
+.column-header-row {
+  display: flex;
+  border-bottom: 1px solid #E5E7EB;
+  background: #fff;
+  position: sticky;
+  top: 32px;
+  z-index: 5;
+}
+
+.timeline-wrapper .right-panel .column-header-row {
+  top: 0;
+}
+
+.timeline-wrapper .right-panel:has(.month-header-row) .column-header-row {
+  top: 32px;
+}
+
+.column-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  font-size: 11px;
+  color: #6B7280;
+  border-right: 1px solid #F3F4F6;
+  box-sizing: border-box;
+  flex-shrink: 0;
+
+  &.is-today {
+    background: #EFF6FF;
+    color: #4A90D9;
+    font-weight: 600;
+  }
+}
+
+.col-label {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.col-sub-label {
+  font-size: 10px;
+  color: #9CA3AF;
+  line-height: 1.2;
+
+  .is-today & {
+    color: #4A90D9;
+  }
+}
+
+.grid-rows {
+  position: relative;
+}
+
+.today-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #4A90D9;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.grid-row {
+  display: flex;
+  height: 52px;
+  border-bottom: 1px solid #F3F4F6;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.1s;
+
+  &:hover {
+    background: #FAFBFC;
+  }
+}
+
+.grid-cell {
+  height: 100%;
+  border-right: 1px solid #F3F4F6;
+  box-sizing: border-box;
+  flex-shrink: 0;
+
+  &.is-today {
+    background: rgba(74, 144, 217, 0.04);
+  }
+}

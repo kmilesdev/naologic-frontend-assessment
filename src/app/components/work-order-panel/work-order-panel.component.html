@@ -1,0 +1,116 @@
+@if (isOpen) {
+  <div class="panel-backdrop" (click)="onBackdropClick($event)">
+    <div class="panel-container">
+      <div class="panel-header">
+        <h2>Work Order Details</h2>
+        <button class="close-btn" (click)="close()" type="button">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M13 1L1 13M1 1l12 12" stroke="#6B7280" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="panel-form">
+        @if (overlapError) {
+          <div class="error-banner">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="8" r="7" stroke="#DC2626" stroke-width="2"/>
+              <path d="M8 4.5v4M8 10.5h.01" stroke="#DC2626" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span>{{ overlapError }}</span>
+          </div>
+        }
+
+        <div class="form-group">
+          <label for="wo-name">Work Order Name</label>
+          <input
+            id="wo-name"
+            type="text"
+            formControlName="name"
+            placeholder="Enter work order name"
+            class="form-input"
+            [class.invalid]="form.get('name')?.touched && form.get('name')?.invalid"
+          />
+          @if (form.get('name')?.touched && form.get('name')?.hasError('required')) {
+            <span class="field-error">Name is required</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="wo-status">Status</label>
+          <ng-select
+            formControlName="status"
+            [items]="statusOptions"
+            bindLabel="label"
+            bindValue="value"
+            [clearable]="false"
+            [searchable]="false"
+            placeholder="Select status"
+            class="status-select"
+          ></ng-select>
+        </div>
+
+        <div class="form-group">
+          <label>Start Date</label>
+          <div class="input-group">
+            <input
+              class="form-input"
+              placeholder="yyyy-mm-dd"
+              ngbDatepicker
+              #dpStart="ngbDatepicker"
+              formControlName="startDate"
+              [class.invalid]="form.get('startDate')?.touched && form.get('startDate')?.invalid"
+              (click)="dpStart.toggle()"
+              readonly
+            />
+            <button class="input-group-btn" (click)="dpStart.toggle()" type="button">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <rect x="1" y="2" width="14" height="13" rx="2" stroke="#6B7280" stroke-width="1.5"/>
+                <path d="M1 6h14M5 1v2M11 1v2" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+          @if (form.get('startDate')?.touched && form.get('startDate')?.hasError('required')) {
+            <span class="field-error">Start date is required</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label>End Date</label>
+          <div class="input-group">
+            <input
+              class="form-input"
+              placeholder="yyyy-mm-dd"
+              ngbDatepicker
+              #dpEnd="ngbDatepicker"
+              formControlName="endDate"
+              [class.invalid]="form.get('endDate')?.touched && form.get('endDate')?.invalid"
+              (click)="dpEnd.toggle()"
+              readonly
+            />
+            <button class="input-group-btn" (click)="dpEnd.toggle()" type="button">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <rect x="1" y="2" width="14" height="13" rx="2" stroke="#6B7280" stroke-width="1.5"/>
+                <path d="M1 6h14M5 1v2M11 1v2" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+          @if (form.get('endDate')?.touched && form.get('endDate')?.hasError('required')) {
+            <span class="field-error">End date is required</span>
+          }
+        </div>
+
+        @if (form.hasError('dateRange')) {
+          <div class="field-error date-range-error">End date must be after start date</div>
+        }
+
+        <div class="panel-actions">
+          <button type="button" class="btn-cancel" (click)="close()">Cancel</button>
+          <button type="submit" class="btn-submit">
+            {{ mode === 'create' ? 'Create' : 'Save' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

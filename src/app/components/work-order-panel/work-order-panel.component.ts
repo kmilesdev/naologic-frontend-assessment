@@ -1,0 +1,130 @@
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, HostListener } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormGroup, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { NgbDatepickerModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { WorkOrderDocument, WorkOrderStatus, STATUS_OPTIONS } from '../../models/work-order.model';
+import { WorkOrderService } from '../../services/work-order.service';
+import { format, parseISO, addDays } from 'date-fns';
+
+@Component({
+  selector: 'app-work-order-panel',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, NgSelectModule, NgbDatepickerModule],
+  templateUrl: './work-order-panel.component.html',
+  styleUrls: ['./work-order-panel.component.scss'],
+})
+export class WorkOrderPanelComponent implements OnChanges {
+  @Input() isOpen = false;
+  @Input() mode: 'create' | 'edit' = 'create';
+  @Input() workCenterId = '';
+  @Input() initialStartDate = '';
+  @Input() editOrder: WorkOrderDocument | null = null;
+
+  @Output() closed = new EventEmitter<void>();
+  @Output() saved = new EventEmitter<void>();
+
+  statusOptions = STATUS_OPTIONS;
+  overlapError = '';
+
+  form = new FormGroup({
+    name: new FormControl('', [Validators.required]),
+    status: new FormControl<WorkOrderStatus>('open', [Validators.required]),
+    startDate: new FormControl<NgbDateStruct | null>(null, [Validators.required]),
+    endDate: new FormControl<NgbDateStruct | null>(null, [Validators.required]),
+  }, { validators: this.dateRangeValidator });
+
+  constructor(private workOrderService: WorkOrderService) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['isOpen'] && this.isOpen) {
+      this.overlapError = '';
+      if (this.mode === 'create') {
+        const start = this.initialStartDate
+          ? parseISO(this.initialStartDate)
+          : new Date();
+        const end = addDays(start, 7);
+
+        this.form.reset({
+          name: '',
+          status: 'open',
+          startDate: this.dateToNgb(start),
+          endDate: this.dateToNgb(end),
+        });
+      } else if (this.mode === 'edit' && this.editOrder) {
+        const d = this.editOrder.data;
+        this.form.patchValue({
+          name: d.name,
+          status: d.status,
+          startDate: this.dateToNgb(parseISO(d.startDate)),
+          endDate: this.dateToNgb(parseISO(d.endDate)),
+        });
+      }
+    }
+  }
+
+  dateRangeValidator(group: AbstractControl): ValidationErrors | null {
+    const start = group.get('startDate')?.value as NgbDateStruct | null;
+    const end = group.get('endDate')?.value as NgbDateStruct | null;
+    if (!start || !end) return null;
+    const s = new Date(start.year, start.month - 1, start.day);
+    const e = new Date(end.year, end.month - 1, end.day);
+    return e > s ? null : { dateRange: true };
+  }
+
+  onSubmit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    const val = this.form.value;
+    const startDate = this.ngbToIso(val.startDate!);
+    const endDate = this.ngbToIso(val.endDate!);
+
+    const data = {
+      name: val.name!,
+      workCenterId: this.workCenterId,
+      status: val.status!,
+      startDate,
+      endDate,
+    };
+
+    let result: { success: boolean; error?: string };
+
+    if (this.mode === 'create') {
+      result = this.workOrderService.createWorkOrder(data);
+    } else {
+      result = this.workOrderService.updateWorkOrder(this.editOrder!.docId, data);
+    }
+
+    if (!result.success) {
+      this.overlapError = result.error || 'Overlap detected.';
+      return;
+    }
+
+    this.overlapError = '';
+    this.saved.emit();
+    this.close();
+  }
+
+  close(): void {
+    this.isOpen = false;
+    this.overlapError = '';
+    this.closed.emit();
+  }
+
+  onBackdropClick(event: MouseEvent): void {
+    if ((event.target as HTMLElement).classList.contains('panel-backdrop')) {
+      this.close();
+    }
+  }
+
+  private dateToNgb(d: Date): NgbDateStruct {
+    return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
+  }
+
+  private ngbToIso(d: NgbDateStruct): string {
+    return format(new Date(d.year, d.month - 1, d.day), 'yyyy-MM-dd');
+  }
+}
