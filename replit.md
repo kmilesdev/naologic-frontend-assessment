@@ -41,7 +41,7 @@ src/app/
 - Right-side drawer panel (no backdrop) with Cancel/Create buttons at top-right
 - Form field order: Name → Status → End date → Start date
 - Date format: MM.DD.YYYY
-- Status options: Open, In progress, Complete, Blocked
+- Status options: Open (blue), In progress (blue/purple), Complete (green), Blocked (yellow/orange)
 - Strict overlap validation per work center
 
 ## Work Centers
