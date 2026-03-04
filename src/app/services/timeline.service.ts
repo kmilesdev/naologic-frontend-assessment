@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { ZoomLevel, TimelineColumn } from '../models/timeline.model';
 import {
-  addDays, addHours, addWeeks, addMonths,
-  startOfDay, startOfWeek, startOfMonth, startOfHour,
-  endOfWeek, endOfMonth,
-  format, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, eachHourOfInterval,
-  differenceInCalendarDays, differenceInHours,
+  addDays, addWeeks, addMonths,
+  startOfDay, startOfWeek, startOfMonth,
+  endOfWeek,
+  format, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval,
+  differenceInCalendarDays,
   isSameDay, isSameMonth, parseISO, isWithinInterval, isBefore, getDaysInMonth
 } from 'date-fns';
 
@@ -13,21 +13,15 @@ import {
 export class TimelineService {
   getColumnWidth(zoom: ZoomLevel): number {
     switch (zoom) {
-      case 'hour': return 80;
       case 'day': return 60;
       case 'week': return 120;
       case 'month': return 140;
-      default: return 140;
+      default: return 60;
     }
   }
 
   getDateRange(zoom: ZoomLevel, referenceDate: Date): { start: Date; end: Date } {
     switch (zoom) {
-      case 'hour':
-        return {
-          start: addHours(startOfHour(referenceDate), -12),
-          end: addHours(startOfHour(referenceDate), 36),
-        };
       case 'day':
         return {
           start: addDays(startOfDay(referenceDate), -14),
@@ -53,19 +47,11 @@ export class TimelineService {
     const currentMonth = startOfMonth(ref);
 
     switch (zoom) {
-      case 'hour':
-        return eachHourOfInterval({ start, end }).map(date => ({
-          date,
-          label: format(date, 'HH:mm'),
-          subLabel: format(date, 'MMM d'),
-          isToday: isSameDay(date, today),
-          isCurrent: false,
-        }));
       case 'day':
         return eachDayOfInterval({ start, end }).map(date => ({
           date,
-          label: format(date, 'd'),
-          subLabel: format(date, 'EEE'),
+          label: format(date, 'EEE d'),
+          subLabel: format(date, 'MMM'),
           isToday: isSameDay(date, today),
           isCurrent: isSameDay(date, today),
         }));
@@ -100,10 +86,6 @@ export class TimelineService {
     const colWidth = this.getColumnWidth(zoom);
 
     switch (zoom) {
-      case 'hour': {
-        const hours = differenceInHours(d, rangeStart);
-        return hours * colWidth;
-      }
       case 'day': {
         const days = differenceInCalendarDays(d, rangeStart);
         return days * colWidth;
@@ -150,10 +132,6 @@ export class TimelineService {
     const colWidth = this.getColumnWidth(zoom);
 
     switch (zoom) {
-      case 'hour': {
-        const hours = Math.floor(px / colWidth);
-        return addHours(rangeStart, hours);
-      }
       case 'day': {
         const days = Math.floor(px / colWidth);
         return addDays(rangeStart, days);

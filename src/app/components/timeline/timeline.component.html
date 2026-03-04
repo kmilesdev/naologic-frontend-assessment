@@ -50,10 +50,14 @@
               <div
                 class="column-header"
                 [style.width.px]="columnWidth"
+                [class.is-current]="col.isCurrent"
               >
                 <span class="col-label">{{ col.label }}</span>
+                @if (col.subLabel) {
+                  <span class="col-sublabel">{{ col.subLabel }}</span>
+                }
                 @if (col.isCurrent) {
-                  <span class="current-month-pill">Current month</span>
+                  <span class="current-month-pill">{{ currentPillLabel }}</span>
                 }
               </div>
             }

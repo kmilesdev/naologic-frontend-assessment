@@ -208,12 +208,23 @@
   box-sizing: border-box;
   flex-shrink: 0;
   position: relative;
+
+  &.is-current {
+    background: #FAFAFE;
+  }
 }
 
 .col-label {
   font-size: 12px;
   font-weight: 400;
   color: #9CA3AF;
+  white-space: nowrap;
+}
+
+.col-sublabel {
+  font-size: 10px;
+  font-weight: 400;
+  color: #C0C4CC;
   white-space: nowrap;
 }
 

@@ -29,9 +29,8 @@ export class TimelineComponent implements OnInit, OnDestroy, AfterViewInit {
   workCenters: WorkCenterDocument[] = [];
   workOrders: WorkOrderDocument[] = [];
 
-  zoomLevel: ZoomLevel = 'month';
+  zoomLevel: ZoomLevel = 'day';
   zoomOptions: { value: ZoomLevel; label: string }[] = [
-    { value: 'hour', label: 'Hour' },
     { value: 'day', label: 'Day' },
     { value: 'week', label: 'Week' },
     { value: 'month', label: 'Month' },
@@ -91,7 +90,16 @@ export class TimelineComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   get selectedZoomLabel(): string {
-    return this.zoomOptions.find(o => o.value === this.zoomLevel)?.label || 'Month';
+    return this.zoomOptions.find(o => o.value === this.zoomLevel)?.label || 'Day';
+  }
+
+  get currentPillLabel(): string {
+    switch (this.zoomLevel) {
+      case 'day': return 'Today';
+      case 'week': return 'Current week';
+      case 'month': return 'Current month';
+      default: return 'Current';
+    }
   }
 
   toggleZoomDropdown(): void {

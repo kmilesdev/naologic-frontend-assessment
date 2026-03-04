@@ -28,11 +28,12 @@ src/app/
 ```
 
 ## Key Features
-- Hour/Day/Week/Month zoom levels via custom timescale dropdown (Month default)
+- Day/Week/Month zoom levels via custom timescale dropdown (Day default)
 - NAOLOGIC branding in top-left, "Work Orders" title
 - Fixed left column with 5 work center names, horizontally scrollable timeline grid
 - Dynamic date range based on current date (referenceDate = new Date())
-- "Current month" yellow pill indicator in timeline header (positioned below month label)
+- Day view: ±14 days, columns show "EEE d" + month sublabel; Week view: ±8 weeks; Month view: -3/+8 months
+- Dynamic "current" pill indicator: "Today" (day view), "Current week" (week view), "Current month" (month view)
 - "Today" vertical indicator line (purple, semi-transparent) runs through entire grid at current date position (z-index behind bars)
 - "Click to add dates" tooltip on hover over empty timeline areas
 - Light pastel work order bars with colored status pill badges
