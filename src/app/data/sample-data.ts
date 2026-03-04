@@ -28,8 +28,8 @@ export const WORK_ORDERS: WorkOrderDocument[] = [
       name: 'Rodriques Electrics',
       workCenterId: 'wc-2',
       status: 'in-progress',
-      startDate: '2024-08-10',
-      endDate: '2025-03-30',
+      startDate: '2024-08-05',
+      endDate: '2024-11-20',
     },
   },
   {
