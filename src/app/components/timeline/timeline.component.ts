@@ -44,6 +44,7 @@ export class TimelineComponent implements OnInit, OnDestroy, AfterViewInit {
   totalWidth = 0;
   columnWidth = 140;
   currentMonthIndex = -1;
+  todayOffsetPx = 0;
   referenceDate = new Date();
 
   panelOpen = false;
@@ -116,6 +117,7 @@ export class TimelineComponent implements OnInit, OnDestroy, AfterViewInit {
     this.columns = this.timelineService.generateColumns(this.zoomLevel, this.rangeStart, this.rangeEnd, this.referenceDate);
     this.totalWidth = this.columns.length * this.columnWidth;
     this.currentMonthIndex = this.timelineService.getCurrentColumnIndex(this.columns);
+    this.todayOffsetPx = this.timelineService.dateToPixelOffset(new Date(), this.rangeStart, this.zoomLevel, this.columns);
   }
 
   private scrollToCurrentMonth(): void {

@@ -229,6 +229,17 @@
   white-space: nowrap;
 }
 
+.today-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #5B5FC7;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
 .grid-rows {
   position: relative;
 }

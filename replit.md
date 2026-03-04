@@ -33,6 +33,7 @@ src/app/
 - Fixed left column with 5 work center names, horizontally scrollable timeline grid
 - Dynamic date range based on current date (referenceDate = new Date())
 - "Current month" yellow pill indicator in timeline header (positioned below month label)
+- "Today" vertical indicator line (purple, semi-transparent) runs through entire grid at current date position (z-index behind bars)
 - "Click to add dates" tooltip on hover over empty timeline areas
 - Light pastel work order bars with colored status pill badges
 - Three-dot menu (···) appears on bar hover with Edit/Delete dropdown

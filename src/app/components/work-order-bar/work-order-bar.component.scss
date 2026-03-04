@@ -71,7 +71,8 @@
 .dropdown-menu {
   position: absolute;
   top: 100%;
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%);
   margin-top: 4px;
   background: #FFFFFF;
   border: 1px solid #E8E8EF;

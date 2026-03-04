@@ -59,6 +59,8 @@
             }
           </div>
 
+          <div class="today-line" [style.left.px]="todayOffsetPx"></div>
+
           <div class="grid-rows">
             @for (center of workCenters; track trackByCenter($index, center)) {
               <div
