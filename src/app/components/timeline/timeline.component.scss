@@ -297,3 +297,28 @@
     border-top-color: #374151;
   }
 }
+
+@media (max-width: 768px) {
+  .page-content {
+    padding: 0 16px;
+  }
+
+  .page-title {
+    font-size: 20px;
+    margin: 16px 0 12px;
+  }
+
+  .left-panel {
+    width: 160px;
+    min-width: 160px;
+  }
+
+  .left-row {
+    font-size: 12px;
+    padding: 0 12px;
+  }
+
+  .left-header {
+    padding: 14px 12px;
+  }
+}

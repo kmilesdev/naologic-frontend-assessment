@@ -240,3 +240,18 @@
     }
   }
 }
+
+@media (max-width: 768px) {
+  .panel-container {
+    width: 100%;
+    max-width: 100vw;
+  }
+
+  .panel-header {
+    padding: 20px 16px 16px;
+  }
+
+  .panel-form {
+    padding: 0 16px 20px;
+  }
+}
