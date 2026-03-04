@@ -51,13 +51,16 @@ src/app/
 4. McMarrow Distribution
 5. Spartan Manufacturing
 
-## Sample Work Orders (dates relative to present - Mar 2026)
+## Sample Work Orders (8 orders, all 4 statuses, dates relative to present - Mar 2026)
 - Centrix Ltd (Genesis Hardware) - Complete: Dec 15, 2025 → Mar 1, 2026
+- Apex Fabrication (Genesis Hardware) - Open: Mar 15 → May 20, 2026
 - Rodriques Electrics (Rodriques Electrics) - In progress: Jan 5 → Apr 20, 2026
 - Konsulting Inc (Konsulting Inc) - In progress: Jan 20 → Apr 10, 2026
 - Compleks Systems (Konsulting Inc) - In progress: Apr 10 → Jul 15, 2026
+- Delta Components (McMarrow Distribution) - Complete: Nov 10, 2025 → Jan 25, 2026
 - McMarrow Distribution (McMarrow Distribution) - Blocked: Feb 10 → May 25, 2026
-- No overlaps within any work center
+- Vertex Assembly (Spartan Manufacturing) - Open: Feb 1 → Apr 15, 2026
+- Multiple non-overlapping orders on wc-1, wc-3, wc-4; no overlaps within any work center
 
 ## Running
 ```bash

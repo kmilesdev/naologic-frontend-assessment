@@ -65,4 +65,37 @@ export const WORK_ORDERS: WorkOrderDocument[] = [
       endDate: '2026-05-25',
     },
   },
+  {
+    docId: 'wo-6',
+    docType: 'workOrder',
+    data: {
+      name: 'Apex Fabrication',
+      workCenterId: 'wc-1',
+      status: 'open',
+      startDate: '2026-03-15',
+      endDate: '2026-05-20',
+    },
+  },
+  {
+    docId: 'wo-7',
+    docType: 'workOrder',
+    data: {
+      name: 'Vertex Assembly',
+      workCenterId: 'wc-5',
+      status: 'open',
+      startDate: '2026-02-01',
+      endDate: '2026-04-15',
+    },
+  },
+  {
+    docId: 'wo-8',
+    docType: 'workOrder',
+    data: {
+      name: 'Delta Components',
+      workCenterId: 'wc-4',
+      status: 'complete',
+      startDate: '2025-11-10',
+      endDate: '2026-01-25',
+    },
+  },
 ];
