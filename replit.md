@@ -78,6 +78,13 @@ npm install
 npm start   # or: npx ng serve --host 0.0.0.0 --port 5000 --disable-host-check
 ```
 
+## Testing
+- Karma + Jasmine (Angular default)
+- ChromeHeadless (no-sandbox for Replit)
+- 58 unit tests across WorkOrderService and TimelineService
+- Run: `CHROME_BIN=$(which chromium) npx ng test --no-watch --browsers=ChromeHeadlessNoSandbox`
+- Test files: `src/app/services/*.spec.ts`
+
 ## Dependencies
 - @angular/* 17.3.x
 - @ng-bootstrap/ng-bootstrap ^16

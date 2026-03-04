@@ -130,3 +130,20 @@ Three work centers (Genesis Hardware, Konsulting Inc, McMarrow Distribution) hav
 | **Single panel for create/edit** | A `mode` input controls behavior rather than two separate components. Reduces duplication at the cost of a few conditional branches. |
 | **Click-outside overlay** | A transparent fixed overlay intercepts clicks outside the panel. Simpler than a document-level click listener with `contains()` checks, and handles edge cases (iframes, dynamic content) better. |
 | **No drag-and-drop** | Would significantly increase complexity (resize handles, snap-to-grid, optimistic updates). Omitted to focus on core requirements. Marked with `@upgrade` in code. |
+
+## Testing
+
+Unit tests use **Karma + Jasmine** (Angular's default test runner).
+
+```bash
+CHROME_BIN=$(which chromium) npx ng test --no-watch --browsers=ChromeHeadlessNoSandbox
+```
+
+**58 tests** covering both services:
+
+- **WorkOrderService** (32 tests): CRUD operations, overlap detection (full/partial/back-to-back/cross-center), localStorage persistence (create/delete/empty array/corrupted data/reload), unique ID generation
+- **TimelineService** (26 tests): Column widths per zoom, date ranges, column generation with labels and current-period marking, date-to-pixel and pixel-to-date conversions, bar width calculations, infinite scroll range extension
+
+## AI Prompts
+
+See [AI_PROMPTS.md](./AI_PROMPTS.md) for documented prompts and decision processes used during development.
