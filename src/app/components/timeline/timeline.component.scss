@@ -36,12 +36,42 @@
   margin: 24px 0 16px;
 }
 
+.toolbar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
 .timescale-control {
   display: inline-flex;
   align-items: center;
   gap: 0;
-  margin-bottom: 24px;
   position: relative;
+}
+
+.today-btn {
+  font-family: "Circular-Std", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #5B5FC7;
+  padding: 6px 14px;
+  border: 1px solid #D4D5F0;
+  border-radius: 6px;
+  background: #FFFFFF;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.15s, box-shadow 0.15s;
+
+  &:hover {
+    background: #F5F5FF;
+    box-shadow: 0 1px 3px rgba(91, 95, 199, 0.12);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #5B5FC7;
+    outline-offset: 2px;
+  }
 }
 
 .timescale-label {

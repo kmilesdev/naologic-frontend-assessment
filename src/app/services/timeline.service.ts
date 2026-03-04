@@ -222,4 +222,22 @@ export class TimelineService {
   getCurrentColumnIndex(columns: TimelineColumn[]): number {
     return columns.findIndex(c => c.isCurrent);
   }
+
+  extendRangeBack(currentStart: Date, zoom: ZoomLevel, count: number): Date {
+    switch (zoom) {
+      case 'day': return addDays(currentStart, -count);
+      case 'week': return addWeeks(currentStart, -count);
+      case 'month': return addMonths(currentStart, -count);
+      default: return currentStart;
+    }
+  }
+
+  extendRangeForward(currentEnd: Date, zoom: ZoomLevel, count: number): Date {
+    switch (zoom) {
+      case 'day': return addDays(currentEnd, count);
+      case 'week': return addWeeks(currentEnd, count);
+      case 'month': return addMonths(currentEnd, count);
+      default: return currentEnd;
+    }
+  }
 }

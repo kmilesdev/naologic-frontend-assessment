@@ -5,8 +5,11 @@
   [style.background]="barBg"
   [style.border-color]="barBorder"
   (click)="onBarClick($event)"
-  (mouseenter)="isHovered = true"
-  (mouseleave)="isHovered = false; menuOpen = false"
+  (mouseenter)="onBarEnter()"
+  (mouseleave)="onBarLeave()"
+  role="button"
+  tabindex="0"
+  [attr.aria-label]="order.data.name + ' — ' + statusLabel + ', ' + tooltipDateRange"
 >
   <span class="bar-name">{{ order.data.name }}</span>
   <span
@@ -17,16 +20,36 @@
 
   @if (isHovered) {
     <div class="bar-actions">
-      <button class="three-dot-btn" (click)="toggleMenu($event)" type="button">
+      <button
+        class="three-dot-btn"
+        (click)="toggleMenu($event)"
+        type="button"
+        [attr.aria-label]="'Actions for ' + order.data.name"
+        [attr.aria-expanded]="menuOpen"
+      >
         ···
       </button>
 
       @if (menuOpen) {
-        <div class="dropdown-menu">
-          <button class="dropdown-item" (click)="onEdit($event)">Edit</button>
-          <button class="dropdown-item" (click)="onDelete($event)">Delete</button>
+        <div class="dropdown-menu" role="menu">
+          <button class="dropdown-item" (click)="onEdit($event)" role="menuitem">Edit</button>
+          <button class="dropdown-item" (click)="onDelete($event)" role="menuitem">Delete</button>
         </div>
       }
+    </div>
+  }
+
+  @if (barTooltipVisible && !menuOpen) {
+    <div class="bar-tooltip" role="tooltip">
+      <div class="bar-tooltip-name">{{ order.data.name }}</div>
+      <div class="bar-tooltip-status">
+        <span
+          class="bar-tooltip-badge"
+          [style.background]="badgeBg"
+          [style.color]="badgeText"
+        >{{ statusLabel }}</span>
+      </div>
+      <div class="bar-tooltip-dates">{{ tooltipDateRange }}</div>
     </div>
   }
 </div>

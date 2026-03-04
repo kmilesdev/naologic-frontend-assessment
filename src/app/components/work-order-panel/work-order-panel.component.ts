@@ -1,4 +1,7 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import {
+  Component, EventEmitter, Input, OnChanges, Output, SimpleChanges,
+  ChangeDetectionStrategy, ChangeDetectorRef, ElementRef, ViewChild, AfterViewInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
@@ -13,6 +16,7 @@ import { format, parseISO, addDays } from 'date-fns';
   imports: [CommonModule, ReactiveFormsModule, NgSelectModule, NgbDatepickerModule],
   templateUrl: './work-order-panel.component.html',
   styleUrls: ['./work-order-panel.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkOrderPanelComponent implements OnChanges {
   @Input() isOpen = false;
@@ -24,9 +28,12 @@ export class WorkOrderPanelComponent implements OnChanges {
   @Output() closed = new EventEmitter<void>();
   @Output() saved = new EventEmitter<void>();
 
+  @ViewChild('nameInput') nameInput!: ElementRef<HTMLInputElement>;
+
   statusOptions = STATUS_OPTIONS;
   overlapError = '';
   statusBadgeColors = STATUS_BADGE_COLORS;
+  isClosing = false;
 
   form = new FormGroup({
     name: new FormControl('', [Validators.required]),
@@ -35,11 +42,15 @@ export class WorkOrderPanelComponent implements OnChanges {
     startDate: new FormControl<NgbDateStruct | null>(null, [Validators.required]),
   }, { validators: this.dateRangeValidator });
 
-  constructor(private workOrderService: WorkOrderService) {}
+  constructor(
+    private workOrderService: WorkOrderService,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['isOpen'] && this.isOpen) {
       this.overlapError = '';
+      this.isClosing = false;
       if (this.mode === 'create') {
         const start = this.initialStartDate
           ? parseISO(this.initialStartDate)
@@ -61,6 +72,12 @@ export class WorkOrderPanelComponent implements OnChanges {
           endDate: this.dateToNgb(parseISO(d.endDate)),
         });
       }
+
+      setTimeout(() => {
+        if (this.nameInput) {
+          this.nameInput.nativeElement.focus();
+        }
+      }, 250);
     }
   }
 
@@ -125,14 +142,22 @@ export class WorkOrderPanelComponent implements OnChanges {
     }
 
     this.overlapError = '';
-    this.saved.emit();
-    this.close();
+    this.closeWithCallback(() => this.saved.emit());
   }
 
   close(): void {
-    this.isOpen = false;
-    this.overlapError = '';
-    this.closed.emit();
+    this.closeWithCallback(() => this.closed.emit());
+  }
+
+  private closeWithCallback(callback: () => void): void {
+    this.isClosing = true;
+    this.cdr.markForCheck();
+    setTimeout(() => {
+      this.isOpen = false;
+      this.isClosing = false;
+      this.overlapError = '';
+      callback();
+    }, 200);
   }
 
   private dateToNgb(d: Date): NgbDateStruct {

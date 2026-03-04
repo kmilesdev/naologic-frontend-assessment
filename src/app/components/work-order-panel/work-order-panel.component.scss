@@ -30,6 +30,15 @@
   to { transform: translateX(0); }
 }
 
+@keyframes slideOut {
+  from { transform: translateX(0); }
+  to { transform: translateX(100%); }
+}
+
+.panel-container.closing {
+  animation: slideOut 0.2s ease-in forwards;
+}
+
 .panel-header {
   display: flex;
   justify-content: space-between;

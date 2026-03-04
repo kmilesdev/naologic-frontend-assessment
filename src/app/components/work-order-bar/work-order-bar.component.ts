@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Input, Output, ElementRef, HostListener } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ElementRef, HostListener, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WorkOrderDocument, STATUS_BADGE_COLORS, BAR_COLORS, STATUS_OPTIONS } from '../../models/work-order.model';
+import { format, parseISO } from 'date-fns';
 
 @Component({
   selector: 'app-work-order-bar',
@@ -8,6 +9,7 @@ import { WorkOrderDocument, STATUS_BADGE_COLORS, BAR_COLORS, STATUS_OPTIONS } fr
   imports: [CommonModule],
   templateUrl: './work-order-bar.component.html',
   styleUrls: ['./work-order-bar.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkOrderBarComponent {
   @Input() order!: WorkOrderDocument;
@@ -19,6 +21,7 @@ export class WorkOrderBarComponent {
 
   isHovered = false;
   menuOpen = false;
+  barTooltipVisible = false;
 
   constructor(private elRef: ElementRef) {}
 
@@ -42,8 +45,30 @@ export class WorkOrderBarComponent {
     return STATUS_OPTIONS.find(s => s.value === this.order.data.status)?.label || 'Open';
   }
 
+  get tooltipDateRange(): string {
+    try {
+      const start = format(parseISO(this.order.data.startDate), 'MMM d, yyyy');
+      const end = format(parseISO(this.order.data.endDate), 'MMM d, yyyy');
+      return `${start} – ${end}`;
+    } catch {
+      return `${this.order.data.startDate} – ${this.order.data.endDate}`;
+    }
+  }
+
+  // @upgrade: add drag-and-drop resizing for bar start/end dates
   onBarClick(event: MouseEvent): void {
     event.stopPropagation();
+  }
+
+  onBarEnter(): void {
+    this.isHovered = true;
+    this.barTooltipVisible = true;
+  }
+
+  onBarLeave(): void {
+    this.isHovered = false;
+    this.menuOpen = false;
+    this.barTooltipVisible = false;
   }
 
   toggleMenu(event: MouseEvent): void {

@@ -103,3 +103,30 @@ Three work centers (Genesis Hardware, Konsulting Inc, McMarrow Distribution) hav
 4. **Scroll sync**: The fixed left panel and scrollable timeline grid synchronize vertical scroll position via a scroll event listener on the grid container that mirrors `scrollTop` to the left panel.
 
 5. **Today indicator**: A vertical line is positioned at today's date using the same `dateToPixelOffset` math used for bars, ensuring perfect alignment. The line renders behind bars (lower z-index) so it doesn't obscure content.
+
+## Bonus Features
+
+- **localStorage persistence**: Work orders survive page refresh. Falls back to sample data on first load or if storage is cleared.
+- **Smooth animations**: Panel slide-in/out (CSS keyframes), bar hover box-shadow, tooltip fade-in, button transitions.
+- **Keyboard navigation**: Tab through form fields, Escape to close panel and dropdown. Auto-focus on the name input when panel opens.
+- **Infinite scroll**: Dynamically prepends/appends date columns as the user scrolls near the edges. Throttled at 100ms to avoid excessive recalculation.
+- **"Today" button**: Positioned next to the timescale control, smoothly scrolls the viewport to center on today's date.
+- **Tooltip on bar hover**: Shows work order name, status badge, and full date range in a styled tooltip above the bar.
+- **OnPush change detection**: All three components use `ChangeDetectionStrategy.OnPush` for better performance.
+- **trackBy functions**: All `@for` loops use `trackBy` to minimize DOM mutations.
+- **ARIA labels**: Semantic roles (`role="dialog"`, `role="grid"`, `role="tooltip"`, `aria-label`, `aria-expanded`, `aria-required`, etc.) throughout all templates.
+- **Focus management**: Panel auto-focuses the name input on open; Escape key closes panel from anywhere.
+
+## Trade-offs & Decisions
+
+| Decision | Rationale |
+|----------|-----------|
+| **In-memory BehaviorSubject vs. backend API** | Tech test scope is frontend-only. BehaviorSubjects give reactive updates without HTTP boilerplate. Swapping to HttpClient later only requires changing the service. |
+| **localStorage for persistence** | Simplest option for surviving refresh without a backend. JSON serialization is acceptable for the small data volume. A production app would use a real database. |
+| **date-fns over Moment/Luxon** | Tree-shakeable (only imported functions are bundled), no mutable date objects, and smaller bundle size than Moment. |
+| **Absolute positioning for bars** | Bars are positioned with `left`/`width` in pixels calculated from date math. This avoids complex CSS Grid cell spanning and works naturally with variable-width columns (week/month zoom). |
+| **OnPush + markForCheck** | Opted for OnPush across all components. Requires explicit `markForCheck()` calls when data changes via subscriptions, but avoids unnecessary change detection cycles. |
+| **Infinite scroll with throttle** | Prepends/appends columns on scroll near edges. The 100ms throttle and `requestAnimationFrame` for scroll-left correction prevent jank. Trade-off: columns accumulate in memory over long scrolling sessions. |
+| **Single panel for create/edit** | A `mode` input controls behavior rather than two separate components. Reduces duplication at the cost of a few conditional branches. |
+| **Click-outside overlay** | A transparent fixed overlay intercepts clicks outside the panel. Simpler than a document-level click listener with `contains()` checks, and handles edge cases (iframes, dynamic content) better. |
+| **No drag-and-drop** | Would significantly increase complexity (resize handles, snap-to-grid, optimistic updates). Omitted to focus on core requirements. Marked with `@upgrade` in code. |

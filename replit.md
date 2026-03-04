@@ -1,30 +1,31 @@
 # Work Order Schedule Timeline
 
 ## Overview
-An Angular 17+ interactive timeline application for Naologic's manufacturing ERP tech test. Implements a "Work Orders" schedule/timeline screen with fixed left Work Center column and horizontally scrollable timeline area. UI matches 8 provided design screenshots.
+An Angular 17+ interactive timeline application for Naologic's manufacturing ERP tech test. Implements a "Work Orders" schedule/timeline screen with fixed left Work Center column and horizontally scrollable timeline area. UI matches provided design screenshots.
 
 ## Architecture
-- **Framework**: Angular 17+ with standalone components
+- **Framework**: Angular 17+ with standalone components, OnPush change detection
 - **Styling**: SCSS + Circular Std font (from Naologic CDN)
 - **Forms**: Reactive Forms with FormGroup/FormControl/Validators
 - **Status Dropdown**: ng-select for status field in drawer panel
 - **Datepickers**: @ng-bootstrap/ng-bootstrap ngb-datepicker for date fields
 - **Timescale Dropdown**: Custom dropdown component (not ng-select) for pixel-perfect match
 - **Date math**: date-fns for all date calculations
+- **Persistence**: localStorage for work order data survival across page refreshes
 - **Builder**: @angular-devkit/build-angular:browser (webpack-based for Replit host compatibility)
 
 ## Project Structure
 ```
 src/app/
   models/           - TypeScript interfaces (WorkCenterDocument, WorkOrderDocument, TimelineColumn)
-  data/             - Hardcoded sample data (5 work centers, 5 work orders)
+  data/             - Hardcoded sample data (5 work centers, 8 work orders)
   services/
-    work-order.service.ts  - CRUD operations, overlap validation
-    timeline.service.ts    - Date-to-pixel math, column generation, zoom level handling
+    work-order.service.ts  - CRUD operations, overlap validation, localStorage persistence
+    timeline.service.ts    - Date-to-pixel math, column generation, zoom level handling, infinite scroll
   components/
-    timeline/              - Main page layout (NAOLOGIC branding, title, timescale control, grid)
-    work-order-bar/        - Work order bar with light pastel bg, status badge, hover 3-dot menu
-    work-order-panel/      - Right-side drawer panel with create/edit form
+    timeline/              - Main page layout (NAOLOGIC branding, title, timescale control, grid, Today button)
+    work-order-bar/        - Work order bar with light pastel bg, status badge, hover 3-dot menu, tooltip
+    work-order-panel/      - Right-side drawer panel with create/edit form, slide-in/out animation
 ```
 
 ## Key Features
@@ -34,15 +35,24 @@ src/app/
 - Dynamic date range based on current date (referenceDate = new Date())
 - Day view: ±14 days, columns show "EEE d" + month sublabel; Week view: ±8 weeks; Month view: -3/+8 months
 - Dynamic "current" pill indicator: "Today" (day view), "Current week" (week view), "Current month" (month view)
-- "Today" vertical indicator line (purple, semi-transparent) runs through entire grid at current date position (z-index behind bars)
+- "Today" vertical indicator line (purple, semi-transparent) behind bars
+- "Today" button next to timescale control — smoothly scrolls viewport to center on today
 - "Click to add dates" tooltip on hover over empty timeline areas
+- Tooltip on bar hover showing name, status badge, and full date range
 - Light pastel work order bars with colored status pill badges
 - Three-dot menu (···) appears on bar hover with Edit/Delete dropdown
-- Right-side drawer panel (no backdrop) with Cancel/Create buttons at top-right
+- Right-side drawer panel with slide-in/out animation, Cancel/Create buttons
 - Form field order: Name → Status → End date → Start date
+- Auto-focus on name input when panel opens
+- Escape key closes panel and dropdowns
 - Date format: MM.DD.YYYY
 - Status options: Open (blue), In progress (blue/purple), Complete (green), Blocked (yellow/orange)
 - Strict overlap validation per work center
+- Infinite scroll: dynamically loads more date columns on scroll near edges
+- localStorage persistence: work orders survive page refresh
+- OnPush change detection on all components
+- trackBy functions on all @for loops
+- ARIA labels and semantic roles throughout (dialog, grid, tooltip, etc.)
 
 ## Work Centers
 1. Genesis Hardware

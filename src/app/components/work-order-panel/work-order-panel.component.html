@@ -1,13 +1,19 @@
 @if (isOpen) {
-  <div class="panel-overlay" (click)="close()"></div>
-  <div class="panel-container">
+  <div class="panel-overlay" (click)="close()" aria-hidden="true"></div>
+  <div
+    class="panel-container"
+    [class.closing]="isClosing"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Work Order Details"
+  >
     <div class="panel-header">
       <div class="panel-header-left">
-        <h2>Work Order Details</h2>
+        <h2 id="panel-title">Work Order Details</h2>
         <p class="panel-subtitle">Specify the dates, name and status for this order</p>
       </div>
       <div class="panel-header-right">
-        <button type="button" class="btn-cancel" (click)="close()">Cancel</button>
+        <button type="button" class="btn-cancel" (click)="close()" aria-label="Cancel and close panel">Cancel</button>
         <button type="button" class="btn-create" (click)="onSubmit()">
           {{ mode === 'create' ? 'Create' : 'Save' }}
         </button>
@@ -16,7 +22,7 @@
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="panel-form">
       @if (overlapError) {
-        <div class="error-banner">
+        <div class="error-banner" role="alert">
           {{ overlapError }}
         </div>
       }
@@ -24,6 +30,7 @@
       <div class="form-group">
         <label for="wo-name">Work Order Name</label>
         <input
+          #nameInput
           id="wo-name"
           type="text"
           formControlName="name"
@@ -31,6 +38,7 @@
           class="form-input"
           [class.focused]="true"
           [class.invalid]="form.get('name')?.touched && form.get('name')?.invalid"
+          aria-required="true"
         />
       </div>
 
@@ -45,6 +53,7 @@
           [searchable]="false"
           placeholder="Select status"
           class="status-select"
+          aria-label="Work order status"
         >
           <ng-template ng-label-tmp let-item="item">
             <span
@@ -60,9 +69,10 @@
       </div>
 
       <div class="form-group">
-        <label>End date</label>
+        <label for="wo-end-date">End date</label>
         <div class="date-input-wrapper">
           <input
+            id="wo-end-date"
             class="form-input"
             [value]="formatNgbDate($any(form.get('endDate')?.value))"
             placeholder="MM.DD.YYYY"
@@ -72,14 +82,16 @@
             [class.invalid]="form.get('endDate')?.touched && form.get('endDate')?.invalid"
             (click)="dpEnd.toggle()"
             readonly
+            aria-required="true"
           />
         </div>
       </div>
 
       <div class="form-group">
-        <label>Start date</label>
+        <label for="wo-start-date">Start date</label>
         <div class="date-input-wrapper">
           <input
+            id="wo-start-date"
             class="form-input"
             [value]="formatNgbDate($any(form.get('startDate')?.value))"
             placeholder="MM.DD.YYYY"
@@ -89,12 +101,13 @@
             [class.invalid]="form.get('startDate')?.touched && form.get('startDate')?.invalid"
             (click)="dpStart.toggle()"
             readonly
+            aria-required="true"
           />
         </div>
       </div>
 
       @if (form.hasError('dateRange')) {
-        <div class="field-error">End date must be after start date</div>
+        <div class="field-error" role="alert">End date must be after start date</div>
       }
     </form>
   </div>

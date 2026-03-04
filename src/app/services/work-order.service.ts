@@ -5,16 +5,13 @@ import { WorkCenterDocument } from '../models/work-center.model';
 import { WORK_CENTERS, WORK_ORDERS } from '../data/sample-data';
 import { parseISO, isBefore } from 'date-fns';
 
-/**
- * In-memory data store for work centers and work orders.
- * Uses BehaviorSubjects so components receive updates reactively.
- * All mutations go through service methods that enforce overlap validation.
- */
+const STORAGE_KEY = 'naologic_work_orders';
+
 @Injectable({ providedIn: 'root' })
 export class WorkOrderService {
   private workCenters$ = new BehaviorSubject<WorkCenterDocument[]>([...WORK_CENTERS]);
-  private workOrders$ = new BehaviorSubject<WorkOrderDocument[]>([...WORK_ORDERS]);
-  private nextId = 100;
+  private workOrders$ = new BehaviorSubject<WorkOrderDocument[]>(this.loadFromStorage());
+  private nextId = this.computeNextId();
 
   getWorkCenters() {
     return this.workCenters$.asObservable();
@@ -24,16 +21,38 @@ export class WorkOrderService {
     return this.workOrders$.asObservable();
   }
 
-  /**
-   * Strict interval overlap check: two orders overlap when
-   * newStart < existingEnd AND existingStart < newEnd.
-   *
-   * This means back-to-back orders (one ending the same day another starts)
-   * are NOT considered overlapping, since isBefore is strict (not <=).
-   *
-   * @param excludeOrderId - Omit this order from the check (used during edit
-   *   so an order doesn't conflict with itself)
-   */
+  private loadFromStorage(): WorkOrderDocument[] {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          return parsed;
+        }
+      }
+    } catch {
+      // @upgrade: add structured logging for parse failures
+    }
+    return [...WORK_ORDERS];
+  }
+
+  private persistToStorage(): void {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.workOrders$.value));
+    } catch {
+      // @upgrade: notify user when storage quota exceeded
+    }
+  }
+
+  private computeNextId(): number {
+    const maxId = this.workOrders$.value.reduce((max, wo) => {
+      const num = parseInt(wo.docId.replace('wo-', ''), 10);
+      return isNaN(num) ? max : Math.max(max, num);
+    }, 0);
+    return maxId + 1;
+  }
+
+  // @upgrade: replace BehaviorSubject with NgRx or signal-based state management for larger datasets
   checkOverlap(
     workCenterId: string,
     startDate: string,
@@ -71,10 +90,10 @@ export class WorkOrderService {
     };
 
     this.workOrders$.next([...this.workOrders$.value, newOrder]);
+    this.persistToStorage();
     return { success: true };
   }
 
-  /** Update an existing order. Overlap check excludes the order being edited. */
   updateWorkOrder(
     docId: string,
     data: {
@@ -93,11 +112,13 @@ export class WorkOrderService {
       wo.docId === docId ? { ...wo, data: { ...data } } : wo
     );
     this.workOrders$.next(orders);
+    this.persistToStorage();
     return { success: true };
   }
 
   deleteWorkOrder(docId: string): void {
     const orders = this.workOrders$.value.filter(wo => wo.docId !== docId);
     this.workOrders$.next(orders);
+    this.persistToStorage();
   }
 }
