@@ -9,8 +9,15 @@ import {
   isSameDay, isSameMonth, parseISO, isWithinInterval, isBefore, getDaysInMonth
 } from 'date-fns';
 
+/**
+ * Pure calculation service for timeline positioning and column generation.
+ * Handles all date-to-pixel and pixel-to-date math for Day/Week/Month zoom levels.
+ * Stateless — all methods are deterministic given their inputs.
+ */
 @Injectable({ providedIn: 'root' })
 export class TimelineService {
+
+  /** Column width in pixels for each zoom level. Wider columns for coarser zoom. */
   getColumnWidth(zoom: ZoomLevel): number {
     switch (zoom) {
       case 'day': return 60;
@@ -20,6 +27,10 @@ export class TimelineService {
     }
   }
 
+  /**
+   * Visible date range centered around referenceDate (typically today).
+   * Day: ±14 days (~1 month visible). Week: ±8 weeks. Month: -3 to +8 months.
+   */
   getDateRange(zoom: ZoomLevel, referenceDate: Date): { start: Date; end: Date } {
     switch (zoom) {
       case 'day':
@@ -41,6 +52,11 @@ export class TimelineService {
     }
   }
 
+  /**
+   * Generate column metadata for the header row.
+   * Each column gets a label, optional subLabel, and flags for whether it
+   * contains today (isToday) or is the "current" period (isCurrent) for the pill badge.
+   */
   generateColumns(zoom: ZoomLevel, start: Date, end: Date, referenceDate?: Date): TimelineColumn[] {
     const ref = referenceDate || new Date();
     const today = startOfDay(ref);
@@ -81,12 +97,22 @@ export class TimelineService {
     }
   }
 
+  /**
+   * Convert a date to a pixel X offset from the left edge of the timeline.
+   *
+   * For Day zoom: simple — each day is one column width.
+   * For Week/Month zoom: calendar-aware. We iterate through columns to find
+   * which column the date falls into, then calculate the fractional position
+   * within that column. This handles variable-length months (28-31 days)
+   * accurately instead of assuming a fixed 30-day month.
+   */
   dateToPixelOffset(date: Date | string, rangeStart: Date, zoom: ZoomLevel, columns?: TimelineColumn[]): number {
     const d = typeof date === 'string' ? parseISO(date) : date;
     const colWidth = this.getColumnWidth(zoom);
 
     switch (zoom) {
       case 'day': {
+        // Day view: 1 column = 1 day, direct multiplication
         const days = differenceInCalendarDays(d, rangeStart);
         return days * colWidth;
       }
@@ -95,6 +121,8 @@ export class TimelineService {
           const days = differenceInCalendarDays(d, rangeStart);
           return (days / 7) * colWidth;
         }
+        // Find which week column contains this date, then calculate
+        // fractional position (0-6 days) within that week
         for (let i = 0; i < columns.length; i++) {
           const colStart = columns[i].date;
           const colEnd = i + 1 < columns.length ? columns[i + 1].date : addWeeks(colStart, 1);
@@ -111,6 +139,8 @@ export class TimelineService {
           const days = differenceInCalendarDays(d, rangeStart);
           return (days / 30) * colWidth;
         }
+        // Find which month column contains this date, then calculate
+        // fractional position using actual days in that month (28-31)
         for (let i = 0; i < columns.length; i++) {
           const colStart = columns[i].date;
           const colEnd = i + 1 < columns.length ? columns[i + 1].date : addMonths(colStart, 1);
@@ -128,6 +158,11 @@ export class TimelineService {
     }
   }
 
+  /**
+   * Inverse of dateToPixelOffset: convert a pixel X position back to a date.
+   * Used when the user clicks on the timeline to determine the start date
+   * for a new work order.
+   */
   pixelOffsetToDate(px: number, rangeStart: Date, zoom: ZoomLevel, columns?: TimelineColumn[]): Date {
     const colWidth = this.getColumnWidth(zoom);
 
@@ -140,6 +175,7 @@ export class TimelineService {
         if (!columns?.length) {
           return addDays(rangeStart, Math.floor((px / colWidth) * 7));
         }
+        // Determine which column was clicked, then how far into it
         const colIndex = Math.floor(px / colWidth);
         const fraction = (px % colWidth) / colWidth;
         const safeIndex = Math.min(colIndex, columns.length - 1);
@@ -151,6 +187,7 @@ export class TimelineService {
         if (!columns?.length) {
           return addDays(rangeStart, Math.floor((px / colWidth) * 30));
         }
+        // Use actual days-in-month for accurate click-to-date mapping
         const colIndex = Math.floor(px / colWidth);
         const fraction = (px % colWidth) / colWidth;
         const safeIndex = Math.min(colIndex, columns.length - 1);
@@ -164,6 +201,10 @@ export class TimelineService {
     }
   }
 
+  /**
+   * Calculate bar width by computing pixel positions of both endpoints.
+   * Minimum width of 40px ensures very short orders remain clickable.
+   */
   getBarWidth(startDate: string, endDate: string, zoom: ZoomLevel, rangeStart: Date, columns?: TimelineColumn[]): number {
     const colWidth = this.getColumnWidth(zoom);
     if (rangeStart && columns?.length) {
@@ -177,6 +218,7 @@ export class TimelineService {
     return Math.max((days / 30) * colWidth, 40);
   }
 
+  /** Find the index of the column containing today, used for initial scroll position. */
   getCurrentColumnIndex(columns: TimelineColumn[]): number {
     return columns.findIndex(c => c.isCurrent);
   }

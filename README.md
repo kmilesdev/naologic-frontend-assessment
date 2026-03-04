@@ -11,53 +11,95 @@ ng serve
 
 Open [http://localhost:4200](http://localhost:4200) in your browser.
 
+No additional setup steps required — all data is hardcoded and the app runs entirely client-side.
+
 ## Features
 
-- **Timeline Grid** with Day/Week/Month zoom levels
+- **Timeline Grid** with Day/Week/Month zoom levels (Day is default)
 - **Fixed left panel** showing work center names with horizontally scrollable timeline
-- **Work order bars** with status badges, color-coded by status
-- **Click-to-create**: Click empty timeline area to open create panel (end date auto-set to start + 7 days)
+- **Work order bars** with status badges, color-coded by status (Open=Blue, In Progress=Blue/Purple, Complete=Green, Blocked=Yellow/Orange)
+- **Click-to-create**: Click empty timeline area to open create panel with start date from click position, end date auto-set to start + 7 days
 - **Three-dot actions menu** on each bar with Edit and Delete options
-- **Overlap detection**: Prevents saving work orders that overlap on the same work center
-- **Today indicator**: Vertical line marking the current date
-- **Responsive**: Acceptable horizontal scroll on smaller screens
+- **Overlap detection**: Prevents saving work orders that overlap on the same work center, shows error banner
+- **Today indicator**: Vertical line marking the current date, with "Today"/"Current week"/"Current month" pill badge
+- **Click-to-add tooltip**: Hovering over empty timeline areas shows "Click to add dates" tooltip
+- **Row hover highlight**: Purple left border and light background on hovered work center row
+- **Click outside to close**: Clicking outside the panel dismisses it
+- **Responsive**: Narrower left panel on small screens, full-width panel on mobile
 
 ## Tech Stack
 
-| Library | Purpose |
-|---------|---------|
-| Angular 17+ | Framework (standalone components) |
-| TypeScript (strict) | Type safety |
-| SCSS | Styling |
-| Reactive Forms | Form management with validation |
-| ng-select | Status dropdown in create/edit panel |
-| @ng-bootstrap/ng-bootstrap | Date picker (ngb-datepicker) |
-| date-fns | Date calculations and formatting |
-| Circular Std | Font family (loaded from Naologic CDN) |
+| Library | Why |
+|---------|-----|
+| **Angular 17+** | Framework requirement; standalone components for simpler module structure |
+| **TypeScript (strict)** | Type safety with `strict: true` and additional strict flags |
+| **SCSS** | Component-scoped styling with nesting, variables, and media queries |
+| **Reactive Forms** | `FormGroup`/`FormControl`/`Validators` for type-safe form state and validation |
+| **ng-select** | Rich dropdown for status selection with custom templates (badge rendering) |
+| **@ng-bootstrap/ng-bootstrap** | `ngb-datepicker` for accessible, consistent date picking |
+| **date-fns** | Tree-shakeable date math — interval calculations, formatting, day/week/month arithmetic |
+| **Circular Std** | Font family loaded from Naologic CDN to match brand designs |
 
 ## Architecture
 
+```
+src/app/
+  models/
+    work-center.model.ts    - WorkCenterDocument interface
+    work-order.model.ts     - WorkOrderDocument, WorkOrderStatus, status color maps
+    timeline.model.ts       - ZoomLevel type, TimelineColumn interface
+  data/
+    sample-data.ts          - Hardcoded 5 work centers + 8 work orders
+  services/
+    work-order.service.ts   - CRUD via BehaviorSubjects, overlap validation
+    timeline.service.ts     - Date-to-pixel math, column generation, zoom handling
+  components/
+    timeline/               - Main page: header, timescale control, grid layout
+    work-order-bar/         - Bar with name, status badge, 3-dot menu
+    work-order-panel/       - Slide-out create/edit form
+```
+
 ### Components
 
-- **TimelineComponent** - Main view: toolbar with timescale selector, fixed left panel, scrollable grid with column headers and work order bars
-- **WorkOrderBarComponent** - Individual bar rendered on the timeline with name, status badge, and three-dot actions menu
-- **WorkOrderPanelComponent** - Slide-out panel from right for creating/editing work orders with reactive form validation
+- **TimelineComponent** — Main view with NAOLOGIC branding, "Work Orders" title, timescale dropdown (Day/Week/Month), fixed left panel with work center names, and horizontally scrollable timeline grid. Manages panel open/close state and passes click-derived dates to the panel.
+
+- **WorkOrderBarComponent** — Individual bar positioned absolutely within its grid row. Shows work order name (truncated with ellipsis), status pill badge, and a three-dot actions button on hover. The actions dropdown offers Edit and Delete.
+
+- **WorkOrderPanelComponent** — Slide-out panel from the right edge for creating/editing work orders. Uses Reactive Forms with a `FormGroup` containing Name, Status (ng-select), Start Date and End Date (ngb-datepicker). Validates required fields, date range (end > start), and overlap. A transparent overlay behind the panel handles click-outside-to-close.
 
 ### Services
 
-- **WorkOrderService** - Manages work center and work order data via BehaviorSubjects. Provides CRUD operations and overlap validation logic
-- **TimelineService** - Handles all timeline math: date range calculation, column generation, date-to-pixel conversion, and pixel-to-date mapping for each zoom level
+- **WorkOrderService** — In-memory data store using `BehaviorSubject`. Exposes observables for work centers and work orders. `createWorkOrder()` and `updateWorkOrder()` both call `checkOverlap()` before mutating state; overlap check uses strict interval comparison and accepts an `excludeOrderId` parameter so editing an order doesn't conflict with itself.
 
-### Data
+- **TimelineService** — Pure calculation service with no state. Key methods:
+  - `getDateRange(zoom)` — returns visible start/end (Day: ±14 days, Week: ±8 weeks, Month: -3/+8 months)
+  - `generateColumns(zoom, start, end)` — produces column metadata with labels and current-period flags
+  - `dateToPixelOffset(date, rangeStart, zoom)` — converts a date to a pixel X position
+  - `pixelOffsetToDate(px, rangeStart, zoom)` — inverse: converts a click position back to a date
+  - `getBarWidth(startDate, endDate, zoom)` — calculates bar width in pixels
 
-Sample data includes 6 work centers and 10 work orders demonstrating all 4 statuses (Open, In Progress, Complete, Blocked) with multiple non-overlapping orders on the same work center.
+## Sample Data
+
+5 work centers with 8 work orders covering all 4 statuses:
+
+| Work Center | Orders | Statuses |
+|-------------|--------|----------|
+| Genesis Hardware | Centrix Ltd, Apex Fabrication | Complete, Open |
+| Rodriques Electrics | Rodriques Electrics | In Progress |
+| Konsulting Inc | Konsulting Inc, Compleks Systems | In Progress, In Progress |
+| McMarrow Distribution | Delta Components, McMarrow Distribution | Complete, Blocked |
+| Spartan Manufacturing | Vertex Assembly | Open |
+
+Three work centers (Genesis Hardware, Konsulting Inc, McMarrow Distribution) have multiple non-overlapping orders demonstrating back-to-back scheduling.
 
 ## Approach
 
-1. **Timeline math**: Each zoom level (Day/Week/Month) has its own column width and date range. For Day view, 1 column = 1 day with a direct pixel mapping. For Week/Month views, calendar-aware positioning uses actual column boundaries to accurately place bars within week/month columns.
+1. **Timeline math**: Each zoom level has its own column width and date range centered on today. Day view maps 1 column = 1 day with direct pixel arithmetic. Week and Month views use calendar-aware positioning — the service iterates through actual column boundaries and calculates fractional position within each column based on real day counts (accounting for months with 28-31 days).
 
-2. **Overlap detection**: Uses strict interval comparison - two orders overlap if one starts before the other ends AND vice versa. Back-to-back orders (where one ends on the same day another starts) are allowed.
+2. **Overlap detection**: Two orders overlap when `start_A < end_B AND start_B < end_A`. Back-to-back orders (one ending the same day another starts) are allowed. The check is scoped to the same work center and excludes the order being edited.
 
-3. **Single panel for create/edit**: A mode flag ('create' | 'edit') controls the panel behavior. Create mode resets the form with click-derived start date; edit mode populates from existing order data.
+3. **Single panel for create/edit**: A `mode` flag (`'create' | 'edit'`) controls behavior. Create mode resets the form with the click-derived start date and auto-calculated end date (start + 7 days). Edit mode populates all fields from the existing order. The submit button text changes accordingly ("Create" vs "Save").
 
-4. **Scroll sync**: Vertical scrolling between the fixed left panel and the scrollable right panel is synchronized via a scroll event listener.
+4. **Scroll sync**: The fixed left panel and scrollable timeline grid synchronize vertical scroll position via a scroll event listener on the grid container that mirrors `scrollTop` to the left panel.
+
+5. **Today indicator**: A vertical line is positioned at today's date using the same `dateToPixelOffset` math used for bars, ensuring perfect alignment. The line renders behind bars (lower z-index) so it doesn't obscure content.

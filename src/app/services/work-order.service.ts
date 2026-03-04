@@ -5,6 +5,11 @@ import { WorkCenterDocument } from '../models/work-center.model';
 import { WORK_CENTERS, WORK_ORDERS } from '../data/sample-data';
 import { parseISO, isBefore } from 'date-fns';
 
+/**
+ * In-memory data store for work centers and work orders.
+ * Uses BehaviorSubjects so components receive updates reactively.
+ * All mutations go through service methods that enforce overlap validation.
+ */
 @Injectable({ providedIn: 'root' })
 export class WorkOrderService {
   private workCenters$ = new BehaviorSubject<WorkCenterDocument[]>([...WORK_CENTERS]);
@@ -19,6 +24,16 @@ export class WorkOrderService {
     return this.workOrders$.asObservable();
   }
 
+  /**
+   * Strict interval overlap check: two orders overlap when
+   * newStart < existingEnd AND existingStart < newEnd.
+   *
+   * This means back-to-back orders (one ending the same day another starts)
+   * are NOT considered overlapping, since isBefore is strict (not <=).
+   *
+   * @param excludeOrderId - Omit this order from the check (used during edit
+   *   so an order doesn't conflict with itself)
+   */
   checkOverlap(
     workCenterId: string,
     startDate: string,
@@ -59,6 +74,7 @@ export class WorkOrderService {
     return { success: true };
   }
 
+  /** Update an existing order. Overlap check excludes the order being edited. */
   updateWorkOrder(
     docId: string,
     data: {
