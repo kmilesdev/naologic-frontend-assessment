@@ -31,7 +31,8 @@ src/app/
 - Hour/Day/Week/Month zoom levels via custom timescale dropdown (Month default)
 - NAOLOGIC branding in top-left, "Work Orders" title
 - Fixed left column with 5 work center names, horizontally scrollable timeline grid
-- "Current month" yellow pill indicator in timeline header
+- Dynamic date range based on current date (referenceDate = new Date())
+- "Current month" yellow pill indicator in timeline header (positioned below month label)
 - "Click to add dates" tooltip on hover over empty timeline areas
 - Light pastel work order bars with colored status pill badges
 - Three-dot menu (···) appears on bar hover with Edit/Delete dropdown
@@ -48,12 +49,13 @@ src/app/
 4. McMarrow Distribution
 5. Spartan Manufacturing
 
-## Sample Work Orders
-- Centrix Ltd (Genesis Hardware) - Complete
-- Rodriques Electrics (Rodriques Electrics) - In progress
-- Konsulting Inc (Konsulting Inc) - In progress
-- Compleks Systems (Konsulting Inc) - In progress
-- McMarrow Distribution (McMarrow Distribution) - Blocked
+## Sample Work Orders (dates relative to present - Mar 2026)
+- Centrix Ltd (Genesis Hardware) - Complete: Dec 15, 2025 → Mar 1, 2026
+- Rodriques Electrics (Rodriques Electrics) - In progress: Jan 5 → Apr 20, 2026
+- Konsulting Inc (Konsulting Inc) - In progress: Jan 20 → Apr 10, 2026
+- Compleks Systems (Konsulting Inc) - In progress: Apr 10 → Jul 15, 2026
+- McMarrow Distribution (McMarrow Distribution) - Blocked: Feb 10 → May 25, 2026
+- No overlaps within any work center
 
 ## Running
 ```bash

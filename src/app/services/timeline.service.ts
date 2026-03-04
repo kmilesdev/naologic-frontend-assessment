@@ -47,13 +47,6 @@ export class TimelineService {
     }
   }
 
-  getFixedDateRange(): { start: Date; end: Date } {
-    return {
-      start: new Date(2024, 7, 1),
-      end: new Date(2025, 3, 1),
-    };
-  }
-
   generateColumns(zoom: ZoomLevel, start: Date, end: Date, referenceDate?: Date): TimelineColumn[] {
     const ref = referenceDate || new Date();
     const today = startOfDay(ref);

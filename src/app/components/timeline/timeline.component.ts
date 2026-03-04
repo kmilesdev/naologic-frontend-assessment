@@ -44,7 +44,7 @@ export class TimelineComponent implements OnInit, OnDestroy, AfterViewInit {
   totalWidth = 0;
   columnWidth = 140;
   currentMonthIndex = -1;
-  referenceDate = new Date(2024, 8, 15);
+  referenceDate = new Date();
 
   panelOpen = false;
   panelMode: 'create' | 'edit' = 'create';
@@ -109,12 +109,7 @@ export class TimelineComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private buildTimeline(): void {
-    let range: { start: Date; end: Date };
-    if (this.zoomLevel === 'month') {
-      range = this.timelineService.getFixedDateRange();
-    } else {
-      range = this.timelineService.getDateRange(this.zoomLevel, this.referenceDate);
-    }
+    const range = this.timelineService.getDateRange(this.zoomLevel, this.referenceDate);
     this.rangeStart = range.start;
     this.rangeEnd = range.end;
     this.columnWidth = this.timelineService.getColumnWidth(this.zoomLevel);
