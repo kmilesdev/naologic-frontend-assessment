@@ -137,7 +137,10 @@ export class WorkOrderPanelComponent implements OnChanges {
     }
 
     if (!result.success) {
+      this.overlapError = '';
+      this.cdr.detectChanges();
       this.overlapError = result.error || 'Overlap detected.';
+      this.cdr.markForCheck();
       return;
     }
 

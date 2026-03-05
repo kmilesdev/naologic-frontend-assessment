@@ -66,8 +66,9 @@ export class WorkOrderBarComponent {
   }
 
   onBarLeave(): void {
-    this.isHovered = false;
-    this.menuOpen = false;
+    if (!this.menuOpen) {
+      this.isHovered = false;
+    }
     this.barTooltipVisible = false;
   }
 

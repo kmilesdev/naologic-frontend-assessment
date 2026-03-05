@@ -111,13 +111,32 @@
 }
 
 .error-banner {
-  padding: 10px 14px;
+  padding: 12px 14px;
   background: #FEF2F2;
   border: 1px solid #FECACA;
   border-radius: 6px;
   color: #DC2626;
   font-size: 13px;
+  font-weight: 500;
   font-family: "Circular-Std", sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: errorShake 0.35s ease-out;
+
+  &::before {
+    content: '⚠';
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+}
+
+@keyframes errorShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
 }
 
 .form-group {

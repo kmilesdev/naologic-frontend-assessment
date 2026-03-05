@@ -18,7 +18,7 @@
     [style.color]="badgeText"
   >{{ statusLabel }}</span>
 
-  @if (isHovered) {
+  @if (isHovered || menuOpen) {
     <div class="bar-actions">
       <button
         class="three-dot-btn"
@@ -33,7 +33,7 @@
       @if (menuOpen) {
         <div class="dropdown-menu" role="menu">
           <button class="dropdown-item" (click)="onEdit($event)" role="menuitem">Edit</button>
-          <button class="dropdown-item" (click)="onDelete($event)" role="menuitem">Delete</button>
+          <button class="dropdown-item delete-item" (click)="onDelete($event)" role="menuitem">Delete</button>
         </div>
       }
     </div>
