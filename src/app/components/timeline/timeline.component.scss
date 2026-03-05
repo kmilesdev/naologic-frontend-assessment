@@ -296,6 +296,10 @@
   &.hovered {
     background: #F8F8FE;
   }
+
+  &.menu-active {
+    z-index: 10;
+  }
 }
 
 .grid-cell {

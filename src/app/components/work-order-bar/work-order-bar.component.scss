@@ -16,6 +16,10 @@
   &:hover {
     box-shadow: 0 1px 4px rgba(91, 95, 199, 0.12);
   }
+
+  &.menu-open {
+    z-index: 200;
+  }
 }
 
 .bar-name {

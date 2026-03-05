@@ -59,6 +59,7 @@ export class TimelineComponent implements OnInit, OnDestroy, AfterViewInit {
   tooltipY = 0;
 
   hoveredRowId = '';
+  activeMenuRowId = '';
 
   private destroy$ = new Subject<void>();
   private scrollThrottleTimer: any = null;
@@ -225,6 +226,10 @@ export class TimelineComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onDeleteOrder(docId: string): void {
     this.workOrderService.deleteWorkOrder(docId);
+  }
+
+  onBarMenuToggled(isOpen: boolean, centerId: string): void {
+    this.activeMenuRowId = isOpen ? centerId : '';
   }
 
   onPanelClosed(): void {

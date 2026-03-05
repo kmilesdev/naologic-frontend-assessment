@@ -93,6 +93,7 @@
               <div
                 class="grid-row"
                 [class.hovered]="hoveredRowId === center.docId"
+                [class.menu-active]="activeMenuRowId === center.docId"
                 (click)="onTimelineClick($event, center.docId)"
                 (mousemove)="onRowMouseMove($event, center.docId)"
                 (mouseleave)="onRowMouseLeave()"
@@ -114,6 +115,7 @@
                     [widthPx]="getBarWidth(order)"
                     (editOrder)="onEditOrder($event)"
                     (deleteOrder)="onDeleteOrder($event)"
+                    (menuToggled)="onBarMenuToggled($event, center.docId)"
                   ></app-work-order-bar>
                 }
               </div>

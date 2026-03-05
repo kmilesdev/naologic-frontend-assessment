@@ -18,6 +18,7 @@ export class WorkOrderBarComponent {
 
   @Output() editOrder = new EventEmitter<WorkOrderDocument>();
   @Output() deleteOrder = new EventEmitter<string>();
+  @Output() menuToggled = new EventEmitter<boolean>();
 
   isHovered = false;
   menuOpen = false;
@@ -75,17 +76,20 @@ export class WorkOrderBarComponent {
   toggleMenu(event: MouseEvent): void {
     event.stopPropagation();
     this.menuOpen = !this.menuOpen;
+    this.menuToggled.emit(this.menuOpen);
   }
 
   onEdit(event: MouseEvent): void {
     event.stopPropagation();
     this.menuOpen = false;
+    this.menuToggled.emit(false);
     this.editOrder.emit(this.order);
   }
 
   onDelete(event: MouseEvent): void {
     event.stopPropagation();
     this.menuOpen = false;
+    this.menuToggled.emit(false);
     this.deleteOrder.emit(this.order.docId);
   }
 
@@ -93,6 +97,7 @@ export class WorkOrderBarComponent {
   onDocumentClick(event: MouseEvent): void {
     if (this.menuOpen && !this.elRef.nativeElement.contains(event.target)) {
       this.menuOpen = false;
+      this.menuToggled.emit(false);
     }
   }
 }
