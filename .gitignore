@@ -42,3 +42,13 @@ replit.md
 # System files
 .DS_Store
 Thumbs.db
+
+# --- Replit / system ---
+.replit
+.replit_integration_files/
+attached_assets/
+.fileuploads/
+.upm/
+.cache/
+.config/
+.local/
